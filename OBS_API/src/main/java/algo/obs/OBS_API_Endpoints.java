@@ -5,10 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.obswebsocket.community.client.OBSRemoteController;
 import io.obswebsocket.community.client.message.response.scenes.GetSceneListResponse;
 import io.obswebsocket.community.client.message.response.stream.GetStreamStatusResponse;
-import io.obswebsocket.community.client.model.Scene;
 import spark.Spark;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,9 +14,11 @@ import java.util.function.Function;
 
 public class OBS_API_Endpoints {
 
+    private static final String OBS_PASSWORD = System.getenv("OBS_PASSWORD");
+
     private static final Map<String, Function<Map<String, String>, String>> endpoints = new HashMap<>();
 
-    OBSRemoteController controller;
+    private OBSRemoteController controller;
 
     public OBS_API_Endpoints(int port) {
         setupObsController();
@@ -33,8 +33,8 @@ public class OBS_API_Endpoints {
             controller = OBSRemoteController.builder()
                 .host("localhost")                  // Default host
                 .port(4455)                         // Default port
-                .password("OBS_PASSWORD")   // Provide your password here
-                .connectionTimeout(3)               // Seconds the client will wait for OBS to respond
+                .password(OBS_PASSWORD)           // Provide your password here
+                .connectionTimeout(3)        // Seconds the client will wait for OBS to respond
                 .build();
 
             controller.connect();
@@ -46,16 +46,6 @@ public class OBS_API_Endpoints {
     }
 
     private void defineEndpoints() {
-
-    /*
-        FORMAL OBS CONTROLLER ENDPOINTS:
-
-            Get Stream State (1/0) ✅
-            Start Stream (return success/failure) ✅
-            Stop Stream (return success/failure) ✅
-            Get Scenes (json list)✅
-            Set Scene (return success/failure)
-     */
 
         System.out.println("Defining Endpoints...");
 
@@ -73,6 +63,8 @@ public class OBS_API_Endpoints {
 
         System.out.println("\t > Set Scene");
         setupSetSceneEndpoint();
+
+        System.out.println("All Endpoints Defined.");
 
     }
 
