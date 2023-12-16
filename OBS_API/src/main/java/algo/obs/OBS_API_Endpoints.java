@@ -1,10 +1,16 @@
 package algo.obs;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.obswebsocket.community.client.OBSRemoteController;
+import io.obswebsocket.community.client.message.response.scenes.GetSceneListResponse;
 import io.obswebsocket.community.client.message.response.stream.GetStreamStatusResponse;
+import io.obswebsocket.community.client.model.Scene;
 import spark.Spark;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -45,10 +51,9 @@ public class OBS_API_Endpoints {
         FORMAL OBS CONTROLLER ENDPOINTS:
 
             Get Stream State (1/0) ✅
-            Start Stream (return success/failure)
-            Stop Stream (return success/failure)
-            Get Scenes (json list)
-            Get Current Scene (return string)
+            Start Stream (return success/failure) ✅
+            Stop Stream (return success/failure) ✅
+            Get Scenes (json list)✅
             Set Scene (return success/failure)
      */
 
@@ -63,6 +68,56 @@ public class OBS_API_Endpoints {
         System.out.println("\t > Get Stream State");
         setupGetStreamStateEndpoint();
 
+        System.out.println("\t > Get Scenes");
+        setupGetScenesEndpoint();
+
+    }
+
+    private String createScenesResponse(GetSceneListResponse response) throws JsonProcessingException {
+
+        List<String> sceneNames = response.getScenes().stream().map(scene -> scene.getSceneName()).toList();
+
+        // Create a Map to represent the JSON structure
+        Map<String, Object> jsonMap = new HashMap<>();
+        jsonMap.put("scenes", sceneNames);
+        jsonMap.put("active_scene", response.getCurrentProgramSceneName());
+
+        // Create an XmlMapper
+
+        // Serialize the Map to JSON
+        String jsonString = new ObjectMapper().writeValueAsString(jsonMap);
+
+        return jsonString;
+
+    }
+
+    private void setupGetScenesEndpoint() {
+        addEndpoint("get_scenes", (params) -> {
+
+            System.out.println("Getting Scenes...");
+
+            try {
+
+                GetSceneListResponse sceneList = controller.getSceneList(100);
+
+                System.out.println("Scenes...");
+                sceneList.getScenes().forEach(scene -> System.out.println("\t > " + scene.getSceneName()));
+
+                System.out.println("Current Scene: " + sceneList.getCurrentProgramSceneName());
+
+                String toReturn = createScenesResponse(sceneList);
+
+                System.out.println("Returning JSON \t" + toReturn);
+
+                return toReturn;
+
+            } catch (Exception e) {
+                System.out.println("Scenes Check Failed!");
+                e.printStackTrace();
+                return "0";
+            }
+
+        });
     }
 
     private void setupGetStreamStateEndpoint() {
