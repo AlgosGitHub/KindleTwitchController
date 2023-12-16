@@ -71,6 +71,35 @@ public class OBS_API_Endpoints {
         System.out.println("\t > Get Scenes");
         setupGetScenesEndpoint();
 
+        System.out.println("\t > Set Scene");
+        setupSetSceneEndpoint();
+
+    }
+
+    private void setupSetSceneEndpoint() {
+        addEndpoint("set_scene", (params) -> {
+
+            System.out.println("Setting Scene...");
+
+            try {
+
+                String sceneName = params.get("scene_name");
+
+                System.out.println("Setting Scene to: " + sceneName);
+
+                controller.setCurrentProgramScene(sceneName, 100);
+
+            } catch (Exception e) {
+                System.out.println("Scene Set Failed!");
+                e.printStackTrace();
+                return "0";
+            }
+
+            System.out.println("Scene Set");
+
+            return "1";
+
+        });
     }
 
     private String createScenesResponse(GetSceneListResponse response) throws JsonProcessingException {
