@@ -56,6 +56,31 @@ public class OBS_API_Endpoints {
         System.out.println("\t > Start Stream");
         setupStartStreamEndpoint();
 
+        System.out.println("\t > Stop Stream");
+        setupStopStreamEndpoint();
+
+    }
+
+    private void setupStopStreamEndpoint() {
+        addEndpoint("stop_stream", (params) -> {
+
+            System.out.println("Stopping Stream...");
+
+            try {
+
+                controller.stopStream(100);
+
+            } catch (Exception e) {
+                System.out.println("Stream Stop Failed!");
+                e.printStackTrace();
+                return "0";
+            }
+
+            System.out.println("Stream Stopped");
+
+            return "1";
+
+        });
     }
 
     private void setupStartStreamEndpoint() {
