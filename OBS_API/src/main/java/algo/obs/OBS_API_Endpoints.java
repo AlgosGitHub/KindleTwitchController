@@ -1,6 +1,7 @@
 package algo.obs;
 
 import io.obswebsocket.community.client.OBSRemoteController;
+import io.obswebsocket.community.client.message.response.stream.GetStreamStatusResponse;
 import spark.Spark;
 
 import java.util.HashMap;
@@ -59,6 +60,31 @@ public class OBS_API_Endpoints {
         System.out.println("\t > Stop Stream");
         setupStopStreamEndpoint();
 
+        System.out.println("\t > Get Stream State");
+        setupGetStreamStateEndpoint();
+
+    }
+
+    private void setupGetStreamStateEndpoint() {
+        addEndpoint("get_stream_state", (params) -> {
+
+            System.out.println("Getting Stream State...");
+
+            try {
+
+                GetStreamStatusResponse streamStatus = controller.getStreamStatus(100);
+
+                System.out.println("Is Streaming?: " + streamStatus.getOutputActive());
+
+                return streamStatus.getOutputActive() ? "1" : "0";
+
+            } catch (Exception e) {
+                System.out.println("Stream State Check Failed!");
+                e.printStackTrace();
+                return "0";
+            }
+
+        });
     }
 
     private void setupStopStreamEndpoint() {
