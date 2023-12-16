@@ -43,7 +43,7 @@ public class OBS_API_Endpoints {
     /*
         FORMAL OBS CONTROLLER ENDPOINTS:
 
-            Get Stream State (1/0)
+            Get Stream State (1/0) ✅
             Start Stream (return success/failure)
             Stop Stream (return success/failure)
             Get Scenes (json list)
@@ -51,12 +51,33 @@ public class OBS_API_Endpoints {
             Set Scene (return success/failure)
      */
 
-        addEndpoint("start_stream", (params) -> {
-            System.out.println("start_stream");
-            // Add your custom logic here
-            return "json_string";
-        });
+        System.out.println("Defining Endpoints...");
 
+        System.out.println("\t > Start Stream");
+        setupStartStreamEndpoint();
+
+    }
+
+    private void setupStartStreamEndpoint() {
+        addEndpoint("start_stream", (params) -> {
+
+            System.out.println("Starting Stream...");
+
+            try {
+
+                controller.startStream(100);
+
+            } catch (Exception e) {
+                System.out.println("Stream Start Failed!");
+                e.printStackTrace();
+                return "0";
+            }
+
+            System.out.println("Stream Started");
+
+            return "1";
+
+        });
     }
 
     private void setupEndpointService(int port) {
