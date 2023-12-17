@@ -6,7 +6,7 @@ function addFakeMessage() {
     newMessage.textContent = "Fake Message x " + new Date().toLocaleTimeString();
 
     // Ensure the onclick function is correctly attached
-    newMessage.addEventListener('click', function() {
+    newMessage.addEventListener('click', function () {
         selectMessage(newMessage);
     });
 
@@ -16,7 +16,7 @@ function addFakeMessage() {
     if (!isUserScrolledUp) {
         chatContainer.scrollTop = chatContainer.scrollHeight;
     }
-    
+
     // Keeping only the last 10 messages
     var messages = chat.getElementsByClassName('chat-message');
     while (messages.length > 50) {
@@ -24,7 +24,7 @@ function addFakeMessage() {
     }
 }
 // Detect if the user has scrolled up
-document.getElementById('chat-container').addEventListener('scroll', function() {
+document.getElementById('chat-container').addEventListener('scroll', function () {
     var chat = document.getElementById('chat-container');
     // A buffer is used to determine if the user has scrolled up significantly
     var scrollBuffer = 10;
@@ -43,6 +43,12 @@ function selectMessage(messageElement) {
     // Update the selected message text
     var messageText = document.getElementById('message-text');
     messageText.textContent = messageElement.textContent;
+}
+
+let passphrase;
+
+function savePassphrase() {
+    passphrase = document.getElementById('passphrase-input').value;
 }
 
 // Adding an initial message and setting up interval for testing
