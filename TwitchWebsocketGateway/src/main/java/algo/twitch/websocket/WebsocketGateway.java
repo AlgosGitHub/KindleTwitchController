@@ -79,7 +79,7 @@ public class WebsocketGateway extends WebSocketServer {
     public ServerHandshakeBuilder onWebsocketHandshakeReceivedAsServer(WebSocket conn, Draft draft, ClientHandshake request ) throws InvalidDataException {
 
         if(!request.getResourceDescriptor().equals("/kindle_chat"))
-            throw new InvalidHandshakeException("You're not allowed to connect!");
+            throw new InvalidHandshakeException("418 I'm a teapot");
 
         return super.onWebsocketHandshakeReceivedAsServer(conn, draft, request);
 
@@ -112,6 +112,98 @@ public class WebsocketGateway extends WebSocketServer {
             handleGetChatMessage(conn, message);
         }
 
+        if(message.contains("\"type\":\"mute_user\"")) {
+            handleMuteUser(message);
+        }
+
+        if(message.contains("\"type\":\"unmute_user\"")) {
+            handleUnmuteUser(message);
+        }
+
+        if(message.contains("\"type\":\"ban_user\"")) {
+            handleBanUser(message);
+        }
+
+        if(message.contains("\"type\":\"unban_user\"")) {
+            handleUnbanUser(message);
+        }
+
+    }
+
+    private void handleBanUser(String message) {
+        try {
+
+            String hashCode = getHashCodeFromMessage(message);
+            String userName = getUserNameFromMessage(message);
+            banUser(userName, hashCode);
+
+        } catch (Exception ex) {
+            System.out.println("Failed to get hash code from message");
+            ex.printStackTrace();
+        }
+    }
+
+    private void handleUnbanUser(String message) {
+        try {
+
+            String hashCode = getHashCodeFromMessage(message);
+            String userName = getUserNameFromMessage(message);
+            unbanUser(userName, hashCode);
+
+        } catch (Exception ex) {
+            System.out.println("Failed to get hash code from message");
+            ex.printStackTrace();
+        }
+    }
+
+    private void handleUnmuteUser(String message) {
+
+        try {
+
+            String hashCode = getHashCodeFromMessage(message);
+            String userName = getUserNameFromMessage(message);
+            unmuteUser(userName, hashCode);
+
+        } catch (Exception ex) {
+            System.out.println("Failed to get hash code from message");
+            ex.printStackTrace();
+        }
+
+    }
+
+    private void handleMuteUser(String message) {
+        try {
+            String hashCode = getHashCodeFromMessage(message);
+            String userName = getUserNameFromMessage(message);
+            muteUser(userName, hashCode);
+        } catch (Exception ex) {
+            System.out.println("Failed to get hash code from message");
+            ex.printStackTrace();
+        }
+    }
+
+    private void muteUser(String userName, String hashCode) {
+        TwitchClient twitchClient = TwitchClientRegistry.getClient(hashCode);
+        String twitchChannel = "AlgoBro"; //todo: source this via the hashCode
+        twitchClient.getChat().sendMessage(twitchChannel, "/timeout " + userName);
+    }
+
+    private void unmuteUser(String userName, String hashCode) {
+        TwitchClient twitchClient = TwitchClientRegistry.getClient(hashCode);
+        String twitchChannel = "AlgoBro"; //todo: source this via the hashCode
+        twitchClient.getChat().sendMessage(twitchChannel, "/untimeout " + userName);
+    }
+
+    private void banUser(String userName, String hashCode) {
+        TwitchClient twitchClient = TwitchClientRegistry.getClient(hashCode);
+        String twitchChannel = "AlgoBro"; //todo: source this via the hashCode
+        twitchClient.getChat().sendMessage(twitchChannel, "/ban " + userName);
+    }
+
+    private void unbanUser(String userName, String hashCode) {
+        TwitchClient twitchClient = TwitchClientRegistry.getClient(hashCode);
+        String twitchChannel = "AlgoBro"; //todo: source this via the hashCode
+        twitchClient.getChat().sendMessage(twitchChannel, "/unban " + userName);
     }
 
     private void handleGetChatMessage(WebSocket conn, String message) {
@@ -139,11 +231,26 @@ public class WebsocketGateway extends WebSocketServer {
 
     }
 
+    private String getUserNameFromMessage(String message) throws JsonProcessingException {
+
+        // Create an ObjectMapper
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        // Parse the JSON string into a JsonNode
+        JsonNode jsonNode = objectMapper.readTree(message);
+
+        // Extract a named parameter
+        String hashCode = jsonNode.get("userName").asText();
+
+        return hashCode;
+
+    }
     private void initiateChatSubscription(WebSocket conn, String hashCode) {
 
         TwitchClient twitchClient = TwitchClientRegistry.getClient(hashCode);
         String twitchChannel = "AlgoBro"; //todo: source this via the hashCode
 
+        // todo: kill the subscription when the socket connection dies. otherwise, they're living forever.
         new TwitchChatClient(twitchClient, twitchChannel, chatMessage -> {
             try {
 
@@ -157,6 +264,7 @@ public class WebsocketGateway extends WebSocketServer {
 
                 // sanity check: is the connection still open?
                 if(conn.isOpen())
+                    // send the message to the frontend
                     conn.send(jsonString);
 
             } catch (Exception e) {
