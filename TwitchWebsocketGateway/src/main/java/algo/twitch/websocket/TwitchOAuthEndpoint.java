@@ -32,6 +32,8 @@ public class TwitchOAuthEndpoint {
 
                 System.out.println("Auth Completed. OAuth2 Token: " + code.substring(code.length()-4));
 
+                new TwitchChatTest(code);
+
                 // return the response, this will display in the browser
                 return "Your passphrase is: Potato, Potato, Potato";
 
