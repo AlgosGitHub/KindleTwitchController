@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control Panel</title>
+
+</head>
+<body>
+<h1>Control Panel</h1>
+
+<button onclick="test_getScenes()">Get Scenes</button>
+<button onclick="setScene('Flow Chart')">Set Scene</button>
+<button onclick="startStream()">Start Streaming</button>
+<button onclick="stopStreaming()">Stop Streaming</button>
+<button onclick="testGetStreamingStatus()">Check Streaming Status</button>
+
+
+<h2>Results:</h2>
+<div id="results">...</div>
+
+<script>
+    async function test_getScenes() {
+        try {
+            const scenesPromise = new Promise((innerResolve, innerReject) => {
+                window.obsstudio.getScenes(function (scenes) {
+                    innerResolve(scenes);
+                });
+            });
+
+            const currentScenePromise = new Promise((innerResolve, innerReject) => {
+                window.obsstudio.getCurrentScene(function (scene) {
+                    innerResolve(scene);
+                });
+            });
+
+            const [scenes, currentScene] = await Promise.all([
+                scenesPromise,
+                currentScenePromise,
+            ]);
+
+            const result = {
+                scenes,
+                currentScene,
+            };
+
+            document.getElementById('results').innerText = JSON.stringify(result);
+        } catch (error) {
+            console.error(error);
+        }
+    }
+    async function testGetStreamingStatus() {
+        try {
+            const streamingStatusPromise = new Promise((innerResolve, innerReject) => {
+                window.obsstudio.getStatus(function (status) {
+                    innerResolve(status);
+                });
+            });
+
+            const [status] = await Promise.all([
+                streamingStatusPromise,
+            ]);
+
+            const result = {
+                status,
+            };
+
+            document.getElementById('results').innerText = JSON.stringify(result);
+        } catch (error) {
+            console.error(error);
+        }
+    }
+</script>
+
+<script src="obsControls.js"></script>
+</body>
+</html>
