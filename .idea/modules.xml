@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Frontend.iml" filepath="$PROJECT_DIR$/Frontend.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/KindleTwitchCtrl.iml" filepath="$PROJECT_DIR$/.idea/KindleTwitchCtrl.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ObsEmbed.iml" filepath="$PROJECT_DIR$/ObsEmbed.iml" />
     </modules>
   </component>
 </project>
