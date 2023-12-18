@@ -1,17 +1,43 @@
 function addChatMessage(user, message) {
-    var chat = document.getElementById('chat');
-    var chatContainer = document.getElementById('chat-container');
+
     var newMessage = document.createElement('div');
     newMessage.classList.add('chat-message');
-    newMessage.textContent = new Date().toLocaleTimeString() + " | " + user + ": " + message;
+
+// Create spans for timestamp, user, and message
+    var timestampSpan = document.createElement('span');
+    timestampSpan.classList.add('timestamp');
+    timestampSpan.textContent = new Date().toLocaleTimeString();
+
+    var separator1 = document.createElement('span');
+    separator1.textContent = " | ";
+
+    var userSpan = document.createElement('span');
+    userSpan.classList.add('user');
+    userSpan.textContent = user;
+
+    var separator2 = document.createElement('span');
+    separator2.textContent = ": ";
+
+    var messageSpan = document.createElement('span');
+    messageSpan.classList.add('message');
+    messageSpan.textContent = message;
+
+// Append the spans to the newMessage container
+    newMessage.appendChild(timestampSpan);
+    newMessage.appendChild(separator1);
+    newMessage.appendChild(userSpan);
+    newMessage.appendChild(separator2);
+    newMessage.appendChild(messageSpan);
 
     // Ensure the onclick function is correctly attached
     newMessage.addEventListener('click', function() {
         selectMessage(newMessage);
     });
 
+    var chat = document.getElementById('chat');
     chat.appendChild(newMessage);
 
+    var chatContainer = document.getElementById('chat-container');
     // Automatically scroll to the bottom unless the user has scrolled up
     if (!isUserScrolledUp) {
         chatContainer.scrollTop = chatContainer.scrollHeight;
@@ -40,9 +66,16 @@ function selectMessage(messageElement) {
     // Add the 'selected' class to the clicked message
     messageElement.classList.add('selected');
 
-    // Update the selected message text
-    var messageText = document.getElementById('message-text');
-    messageText.textContent = messageElement.textContent;
+    var user = messageElement.querySelector('.user').textContent;
+
+    // Update the selected user name
+    var messageUser = document.getElementById('message-user');
+    messageUser.textContent = user;
+
+    // ensure the mute and ban buttons are set correctly
+    setMuteButton();
+    setBanButton();
+
 }
 
 // Adding an initial message and setting up interval for testing
@@ -76,9 +109,128 @@ function connectToServer(hashCode) {
         }
     });
 
+    return socket;
+
 }
+
+function sendModCheck() {
+
+    var message = {
+        type: 'mod_check',
+        hashCode: hashCode
+    };
+    socket.send(JSON.stringify(message));
+
+}
+
+function banUser() {
+
+    var messageText = document.getElementById('message-user').textContent;
+    var message = {
+        type: 'ban_user',
+        hashCode: hashCode,
+        userName: messageText
+    };
+    socket.send(JSON.stringify(message));
+
+    // update the button to say "Unban"
+    setUnbanButton();
+
+}
+
+function unbanUser() {
+
+    var messageText = document.getElementById('message-user').textContent;
+    var message = {
+        type: 'unban_user',
+        hashCode: hashCode,
+        userName: messageText
+    };
+    socket.send(JSON.stringify(message));
+
+    // reset the button position to BAN
+    setBanButton();
+
+}
+
+function muteUser() {
+
+    var messageText = document.getElementById('message-user').textContent;
+    var message = {
+        type: 'mute_user',
+        hashCode: hashCode,
+        userName: messageText
+    };
+    socket.send(JSON.stringify(message));
+
+    // update the button to say "Unmute"
+    setUnmuteButton();
+
+}
+
+function unmuteUser() {
+
+    var messageText = document.getElementById('message-user').textContent;
+    var message = {
+        type: 'unmute_user',
+        hashCode: hashCode,
+        userName: messageText
+    };
+    socket.send(JSON.stringify(message));
+
+    // reset the button position to MUTE
+    setMuteButton();
+
+}
+
+function setBanButton() {
+
+    // update the ban button label to "Unban"
+    document.getElementById("banButton").textContent = "Ban";
+
+    // swap the button function to unbanUser
+    document.getElementById("banButton").removeEventListener("click", unbanUser);
+    document.getElementById("banButton").addEventListener("click", banUser);
+
+}
+
+function setUnbanButton() {
+
+    // update the ban button label to "Unban"
+    document.getElementById("banButton").textContent = "Unban";
+
+    // swap the button function to unbanUser
+    document.getElementById("banButton").removeEventListener("click", banUser);
+    document.getElementById("banButton").addEventListener("click", unbanUser);
+
+}
+
+function setMuteButton() {
+
+    // update the mute button label to "Unmute"
+    document.getElementById("muteButton").textContent = "Mute";
+
+    // swap the button function to unmuteUser
+    document.getElementById("muteButton").removeEventListener("click", unmuteUser);
+    document.getElementById("muteButton").addEventListener("click", muteUser);
+
+}
+
+function setUnmuteButton() {
+
+    // update the mute button label to "Unmute"
+    document.getElementById("muteButton").textContent = "Unmute";
+
+    // swap the button function to unmuteUser
+    document.getElementById("muteButton").removeEventListener("click", muteUser);
+    document.getElementById("muteButton").addEventListener("click", unmuteUser);
+
+}
+
 
 // fail-safe, the variable isn't always set before the first message is added.
 isUserScrolledUp = false;
 
-connectToServer("88888");
+let hashCode = "88888";
+
+let socket = connectToServer(hashCode);

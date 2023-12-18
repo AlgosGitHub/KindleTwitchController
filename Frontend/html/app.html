@@ -50,7 +50,7 @@
         }
         /* New styles for buttons */
         #selected-message button {
-            width: 49%; /* Adjust as needed for spacing */
+            width: 32%; /* Adjust as needed for spacing */
             font-size: 20px; /* Larger font size */
             padding: 10px;
             margin: 5px 0; /* Space above and below the buttons */
@@ -67,16 +67,16 @@
                 <option>BRB</option>
                 <option>IRL</option>
             </select>
-            <button onclick="triggerAutoModerator()">ModBot</button>
         </div>
     </div>
     <div id="chat-container">
         <div id="chat"></div>
     </div>
     <div id="selected-message">
-        <p>Selected Message: <span id="message-text"></span></p>
-        <button onclick="muteUser()">Mute</button>
-        <button onclick="banUser()">Ban</button>
+        <p>User: <span id="message-user"></span></p>
+        <button id="muteButton" >Mute</button>
+        <button id="banButton" >Ban</button>
+        <button onclick="sendModCheck()">ModCheck</button>
     </div>
 
     <script src="app.js"></script>

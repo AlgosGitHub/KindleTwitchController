@@ -128,6 +128,28 @@ public class WebsocketGateway extends WebSocketServer {
             handleUnbanUser(message);
         }
 
+        if(message.contains("\"type\":\"mod_check\"")) {
+            handleModCheck(message);
+        }
+
+    }
+
+    private void handleModCheck(String message) {
+        try {
+
+            String hashCode = getHashCodeFromMessage(message);
+            modCheck(hashCode);
+
+        } catch (Exception ex) {
+            System.out.println("Failed to get hash code from message");
+            ex.printStackTrace();
+        }
+    }
+
+    private void modCheck(String hashCode) {
+        TwitchClient twitchClient = TwitchClientRegistry.getClient(hashCode);
+        String twitchChannel = "AlgoBro"; //todo: source this via the hashCode
+        twitchClient.getChat().sendMessage(twitchChannel, "ModCheck");
     }
 
     private void handleBanUser(String message) {
@@ -183,24 +205,33 @@ public class WebsocketGateway extends WebSocketServer {
     }
 
     private void muteUser(String userName, String hashCode) {
+
+        System.out.println("Muting user: " + userName);
         TwitchClient twitchClient = TwitchClientRegistry.getClient(hashCode);
         String twitchChannel = "AlgoBro"; //todo: source this via the hashCode
-        twitchClient.getChat().sendMessage(twitchChannel, "/timeout " + userName);
+        //twitchClient.getHelix().
+        twitchClient.getChat().sendMessage(twitchChannel, "/timeout " + userName);//"/timeout " + userName
     }
 
     private void unmuteUser(String userName, String hashCode) {
+
+        System.out.println("Unmuting user: " + userName);
         TwitchClient twitchClient = TwitchClientRegistry.getClient(hashCode);
         String twitchChannel = "AlgoBro"; //todo: source this via the hashCode
         twitchClient.getChat().sendMessage(twitchChannel, "/untimeout " + userName);
     }
 
     private void banUser(String userName, String hashCode) {
+
+        System.out.println("Banning user: " + userName);
         TwitchClient twitchClient = TwitchClientRegistry.getClient(hashCode);
         String twitchChannel = "AlgoBro"; //todo: source this via the hashCode
         twitchClient.getChat().sendMessage(twitchChannel, "/ban " + userName);
     }
 
     private void unbanUser(String userName, String hashCode) {
+
+        System.out.println("Unbanning user: " + userName);
         TwitchClient twitchClient = TwitchClientRegistry.getClient(hashCode);
         String twitchChannel = "AlgoBro"; //todo: source this via the hashCode
         twitchClient.getChat().sendMessage(twitchChannel, "/unban " + userName);
