@@ -3,7 +3,7 @@ function addFakeMessage() {
     var newMessage = document.createElement('div');
     newMessage.classList.add('chat-message');
 
-// Create spans for timestamp, user, and message
+    // Create spans for timestamp, user, and message
     var timestampSpan = document.createElement('span');
     timestampSpan.classList.add('timestamp');
     timestampSpan.textContent = new Date().toLocaleTimeString();
@@ -22,7 +22,7 @@ function addFakeMessage() {
     messageSpan.classList.add('message');
     messageSpan.textContent = "message";
 
-// Append the spans to the newMessage container
+    // Append the spans to the newMessage container
     newMessage.appendChild(timestampSpan);
     newMessage.appendChild(separator1);
     newMessage.appendChild(userSpan);
@@ -30,7 +30,7 @@ function addFakeMessage() {
     newMessage.appendChild(messageSpan);
 
     // Ensure the onclick function is correctly attached
-    newMessage.addEventListener('click', function() {
+    newMessage.addEventListener('click', function () {
         selectMessage(newMessage);
     });
 
