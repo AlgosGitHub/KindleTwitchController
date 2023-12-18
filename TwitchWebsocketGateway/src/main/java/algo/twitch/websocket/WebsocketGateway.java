@@ -3,7 +3,10 @@ package algo.twitch.websocket;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.philippheuer.credentialmanager.CredentialManager;
+import com.github.philippheuer.credentialmanager.domain.OAuth2Credential;
 import com.github.twitch4j.TwitchClient;
+import com.github.twitch4j.helix.domain.BanUserInput;
 import org.java_websocket.WebSocket;
 import org.java_websocket.drafts.Draft;
 import org.java_websocket.exceptions.InvalidDataException;
@@ -20,10 +23,7 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.security.KeyStore;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class WebsocketGateway extends WebSocketServer {
 
@@ -209,8 +209,8 @@ public class WebsocketGateway extends WebSocketServer {
         System.out.println("Muting user: " + userName);
         TwitchClient twitchClient = TwitchClientRegistry.getClient(hashCode);
         String twitchChannel = "AlgoBro"; //todo: source this via the hashCode
-        //twitchClient.getHelix().
-        twitchClient.getChat().sendMessage(twitchChannel, "/timeout " + userName);//"/timeout " + userName
+        twitchClient.getChat().sendMessage(twitchChannel, "/timeout " + userName + " 10000");
+
     }
 
     private void unmuteUser(String userName, String hashCode) {
