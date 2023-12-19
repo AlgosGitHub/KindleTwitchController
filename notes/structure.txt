@@ -1,0 +1,13 @@
+
+root
+ |
+ |- Twitch Auth Callback Service
+ |
+ |- OBS Controller
+ |   |- Frontend (Embed)
+ |   |- Backend (Websocket Gateway)
+ |
+ |- Kindle App
+ |   |- Frontend (Kindle WebApp)
+ |   |- Backend (Driver)
+ |

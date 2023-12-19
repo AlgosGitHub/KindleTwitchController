@@ -6,12 +6,17 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="TwitchWebsocketGateway" />
-        <module name="OBS_API" />
+        <module name="AppServer" />
+        <module name="TwitchClientRegistry" />
+        <module name="ObsWebsocketGateway" />
+        <module name="KindleWebsocketGateway" />
+        <module name="TwitchOAuthEndpoint" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="Backend" target="21" />
+      <module name="OBS_API" target="21" />
+      <module name="TwitchWebsocketGateway" target="21" />
     </bytecodeTargetLevel>
   </component>
 </project>

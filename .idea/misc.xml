@@ -7,11 +7,18 @@
         <option value="$PROJECT_DIR$/Backend/pom.xml" />
         <option value="$PROJECT_DIR$/OBS_API/pom.xml" />
         <option value="$PROJECT_DIR$/TwitchWebsocketGateway/pom.xml" />
+        <option value="$PROJECT_DIR$/ObsWebsocketGateway/pom.xml" />
+        <option value="$PROJECT_DIR$/AppServer/pom.xml" />
+        <option value="$PROJECT_DIR$/TwitchOAuthEndpoint/pom.xml" />
+        <option value="$PROJECT_DIR$/TwitchClientRegistry/pom.xml" />
+        <option value="$PROJECT_DIR$/KindleWebsocketGateway/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">
       <set>
         <option value="$PROJECT_DIR$/Backend/pom.xml" />
+        <option value="$PROJECT_DIR$/OBS_API/pom.xml" />
+        <option value="$PROJECT_DIR$/TwitchWebsocketGateway/pom.xml" />
       </set>
     </option>
     <option name="workspaceImportForciblyTurnedOn" value="true" />
