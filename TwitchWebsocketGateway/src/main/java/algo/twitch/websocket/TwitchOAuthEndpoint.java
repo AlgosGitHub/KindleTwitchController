@@ -6,7 +6,6 @@ import com.github.philippheuer.credentialmanager.domain.OAuth2Credential;
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.TwitchClientBuilder;
 import com.github.twitch4j.auth.providers.TwitchIdentityProvider;
-import algo.twitch.websocket.TwitchAuthService.*;
 import spark.Spark;
 
 public class TwitchOAuthEndpoint {
@@ -43,8 +42,18 @@ public class TwitchOAuthEndpoint {
 
                 String hashedPassphrase = authService.hashPassphrase(randomlyGeneratedPassPhrase);
 
-                //TODO: proper error handling
-                TwitchClient twitchClient = authService.authenticate(hashedPassphrase, code);
+                try {
+
+                    finishAuth(hashedPassphrase, code);
+
+                } catch (Exception e) {
+
+                    e.printStackTrace();
+
+                    response.status(500);
+
+                    return "Internal Server Error";
+                }
 
                 // return the response, this will display in the browser
                 return "Your passphrase is: " + randomlyGeneratedPassPhrase;
@@ -61,5 +70,40 @@ public class TwitchOAuthEndpoint {
 
     }
 
-}
+    private String hashPassphrase(String randomlyGeneratedPassPhrase) {
+        return "88888";
+    }
 
+    private String getPassPhrase() {
+        return "Potato Potato Potato";
+    }
+
+    static final String APP_CLIENT_ID = System.getenv("APP_ID");
+    static final String CLIENT_SECRET = System.getenv("APP_SECRET");
+
+    private void finishAuth(String hashedPassphrase, String code) {
+
+        // finish the authentication process that the user began.
+        TwitchIdentityProvider twitchIdentityProvider = new TwitchIdentityProvider(APP_CLIENT_ID, CLIENT_SECRET, "http://localhost/auth_callback");
+
+        OAuth2Credential credentials = twitchIdentityProvider.getCredentialByCode(code);
+
+        // credential manager
+        CredentialManager credentialManager = CredentialManagerBuilder.builder().build();
+        credentialManager.registerIdentityProvider(twitchIdentityProvider);
+
+        TwitchClient twitchClient = TwitchClientBuilder.builder()
+                .withClientId(APP_CLIENT_ID)
+                .withClientSecret(CLIENT_SECRET)
+                .withChatAccount(credentials)
+                .withEnableHelix(true)
+                .withCredentialManager(credentialManager)
+                .withEnableChat(true)
+                .withEnablePubSub(true)
+                .build();
+
+        TwitchClientRegistry.addClient(hashedPassphrase, twitchClient);
+
+    }
+
+}
