@@ -3,7 +3,7 @@ function addChatMessage(user, message) {
     var newMessage = document.createElement('div');
     newMessage.classList.add('chat-message');
 
-// Create spans for timestamp, user, and message
+    // Create spans for timestamp, user, and message
     var timestampSpan = document.createElement('span');
     timestampSpan.classList.add('timestamp');
     timestampSpan.textContent = new Date().toLocaleTimeString();
@@ -22,7 +22,7 @@ function addChatMessage(user, message) {
     messageSpan.classList.add('message');
     messageSpan.textContent = message;
 
-// Append the spans to the newMessage container
+    // Append the spans to the newMessage container
     newMessage.appendChild(timestampSpan);
     newMessage.appendChild(separator1);
     newMessage.appendChild(userSpan);
@@ -30,7 +30,7 @@ function addChatMessage(user, message) {
     newMessage.appendChild(messageSpan);
 
     // Ensure the onclick function is correctly attached
-    newMessage.addEventListener('click', function() {
+    newMessage.addEventListener('click', function () {
         selectMessage(newMessage);
     });
 
@@ -42,7 +42,7 @@ function addChatMessage(user, message) {
     if (!isUserScrolledUp) {
         chatContainer.scrollTop = chatContainer.scrollHeight;
     }
-    
+
     // Keeping only the last 50 messages
     var messages = chat.getElementsByClassName('chat-message');
     while (messages.length > 50) {
@@ -50,7 +50,7 @@ function addChatMessage(user, message) {
     }
 }
 // Detect if the user has scrolled up
-document.getElementById('chat-container').addEventListener('scroll', function() {
+document.getElementById('chat-container').addEventListener('scroll', function () {
     var chat = document.getElementById('chat-container');
     // A buffer is used to determine if the user has scrolled up significantly
     var scrollBuffer = 10;
@@ -104,7 +104,7 @@ function connectToServer(hashCode) {
 
     socket.addEventListener('message', function (event) {
         const messageData = JSON.parse(event.data);
-        if(messageData.type == "chat_message") {
+        if (messageData.type == "chat_message") {
             addChatMessage(messageData.userName, messageData.chatMessage);
         }
     });
