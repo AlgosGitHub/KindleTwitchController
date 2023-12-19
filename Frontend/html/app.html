@@ -60,12 +60,8 @@
 <body>
     <div id="control-panel">
         <div id="toolbar">
-            <button onclick="toggleStream()">Start Stream</button>
-            <select onchange="changeScene(this.value)">
-                <option>Starting</option>
-                <option>Ending</option>
-                <option>BRB</option>
-                <option>IRL</option>
+            <button id="streamStartSwitch">Start Stream</button>
+            <select id="sceneSwitch" onchange="changeScene(this.value)">
             </select>
         </div>
     </div>

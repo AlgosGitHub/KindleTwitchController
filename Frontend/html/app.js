@@ -84,7 +84,7 @@ function selectMessage(messageElement) {
 
 function connectToServer(hashCode) {
 
-    const socket = new WebSocket('ws://192.168.0.115:8080/kindle_chat');
+    const socket = new WebSocket('ws://192.168.0.193:8080/kindle_chat');
 
     socket.addEventListener('open', function (event) {
 
@@ -106,6 +106,14 @@ function connectToServer(hashCode) {
         const messageData = JSON.parse(event.data);
         if(messageData.type == "chat_message") {
             addChatMessage(messageData.userName, messageData.chatMessage);
+        }
+        if(messageData.type == "set_scenes") {
+            populateSceneOptions(messageData.scenes);
+            setCurrentScene(messageData.currentScene);
+        }
+        if(messageData.type == "stream_state") {
+            setStreamingState(messageData.isStreaming);
+            setStreamingButtonAction();
         }
     });
 
@@ -227,6 +235,91 @@ function setUnmuteButton() {
 
 }
 
+
+
+// Function to populate the select element with scene options
+function populateSceneOptions(jsonData) {
+    var selectElement = document.getElementById("sceneSwitch");
+    var scenes = jsonData.scenes;
+    for (var i = 0; i < scenes.length; i++) {
+        var option = document.createElement("option");
+        option.text = scenes[i];
+        selectElement.add(option);
+    }
+}
+
+// Function to set the current scene in the select element
+function setCurrentScene(currentScene) {
+    var selectElement = document.getElementById("sceneSwitch");
+    var currentSceneName = currentScene.name;
+    for (var i = 0; i < selectElement.options.length; i++) {
+        if (selectElement.options[i].text === currentSceneName) {
+            selectElement.selectedIndex = i;
+            break;
+        }
+    }
+}
+
+// Function to handle scene change
+function changeScene(selectedScene) {
+    // Implement your logic to change the scene here
+    console.log("Selected scene: " + selectedScene);
+    var message = {
+        type: 'change_scene',
+        hashCode: hashCode,
+        userName: selectedScene
+    };
+    socket.send(JSON.stringify(message));
+}
+
+function setStreamingState(isStreaming) {
+    var selectElement = document.getElementById("sceneSwitch");
+    if(isStreaming) {
+        selectElement.text = "Stop Streaming";
+    } else {
+        selectElement.text = "Start Streaming";
+    }
+}
+
+function toggleStreamingButtonLabel() {
+    var selectElement = document.getElementById("sceneSwitch");
+    if(selectElement.text === "Start Streaming") {
+        selectElement.text = "Stop Streaming";
+    } else {
+        selectElement.text = "Start Streaming";
+    }
+}
+
+function setStreamingButtonAction() {
+    var selectElement = document.getElementById("sceneSwitch");
+    if(selectElement.text === "Start Streaming") {
+        selectElement.removeEventListener("click", stopStreaming);
+        selectElement.addEventListener("click", startStreaming);
+    } else {
+        selectElement.removeEventListener("click", startStreaming);
+        selectElement.addEventListener("click", stopStreaming);
+    }
+}
+
+function stopStreaming() {
+    var message = {
+        type: 'stop_streaming',
+        hashCode: hashCode
+    };
+    socket.send(JSON.stringify(message));
+    toggleStreamingButtonLabel();
+    setStreamingButtonAction();
+}
+
+function startStreaming() {
+    var message = {
+        type: 'start_streaming',
+        hashCode: hashCode
+    };
+    socket.send(JSON.stringify(message));
+    toggleStreamingButtonLabel();
+    setStreamingButtonAction();
+}
 
 // fail-safe, the variable isn't always set before the first message is added.
 isUserScrolledUp = false;
