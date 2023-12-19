@@ -8,16 +8,14 @@ import com.github.twitch4j.TwitchClientBuilder;
 import com.github.twitch4j.auth.providers.TwitchIdentityProvider;
 import org.apache.http.client.utils.URIBuilder;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Objects;
 
 import static algo.twitch.websocket.OAuthScope.*;
 
 public class TwitchAuthService {
-
-    static final String TWITCH_AUTH_URL = "https://id.twitch.tv/oauth2/authorize";
-    static final String redirectUrl = "http://localhost/auth_callback";
+    
+    static final String REDIRECT_URL = "http://localhost/auth_callback";
     static String APP_CLIENT_ID;
     static String APP_CLIENT_SECRET;
 
@@ -52,7 +50,7 @@ public class TwitchAuthService {
                 .addParameter("response_type", "code")
                 .addParameter("client_id", APP_CLIENT_ID)
                 .addParameter("scope", scopes.stream().map(OAuthScope::getScope).reduce((a, b) -> a + " " + b).orElse(""))
-                .addParameter("redirect_uri", redirectUrl);
+                .addParameter("redirect_uri", REDIRECT_URL);
 
         String url = uriBuilder.toString();
         System.out.println("OAuthURL: " + url);
@@ -70,7 +68,7 @@ public class TwitchAuthService {
 
     public TwitchClient authenticate(String hashedPassphrase, String code) {
         System.out.println("Authenticating...");
-        TwitchIdentityProvider twitchIdentityProvider = new TwitchIdentityProvider(APP_CLIENT_ID, APP_CLIENT_SECRET, redirectUrl);
+        TwitchIdentityProvider twitchIdentityProvider = new TwitchIdentityProvider(APP_CLIENT_ID, APP_CLIENT_SECRET, REDIRECT_URL);
         try {
             OAuth2Credential credentials = twitchIdentityProvider.getCredentialByCode(code);
             CredentialManager credentialManager = CredentialManagerBuilder.builder().build();
