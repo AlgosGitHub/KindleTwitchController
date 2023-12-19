@@ -29,7 +29,7 @@ public class TwitchChatClient {
             eventManager.onEvent(IRCMessageEvent.class, event -> {
                 Optional<String> message = event.getMessage();
                 Optional<String> userDisplayName = event.getUserDisplayName();
-
+                
                 if(message.isPresent() && userDisplayName.isPresent()) {
                     System.out.println(event.getUser().getName() + " > " + message.get());
                     onMessage.accept(new ChatMessage(userDisplayName.get(), message.get()));
