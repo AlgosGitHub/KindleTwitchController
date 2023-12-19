@@ -5,8 +5,10 @@ import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.chat.TwitchChat;
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public class TwitchChatClient {
 
@@ -29,9 +31,14 @@ public class TwitchChatClient {
             eventManager.onEvent(IRCMessageEvent.class, event -> {
                 Optional<String> message = event.getMessage();
                 Optional<String> userDisplayName = event.getUserDisplayName();
+                Map<String, String> roles = event.getBadges();
+                String rolesString = roles.entrySet().stream()
+                        .map(entry -> entry.getKey() + "=" + entry.getValue())
+                        .collect(Collectors.joining(", "));
+
 
                 if(message.isPresent() && userDisplayName.isPresent()) {
-                    System.out.println(event.getUser().getName() + " > " + message.get());
+                    System.out.println(rolesString + event.getUser().getName() + " > " + message.get());
                     onMessage.accept(new ChatMessage(userDisplayName.get(), message.get()));
                 }
 
