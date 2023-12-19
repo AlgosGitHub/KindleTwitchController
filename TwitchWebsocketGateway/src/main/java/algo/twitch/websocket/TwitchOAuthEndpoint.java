@@ -42,7 +42,18 @@ public class TwitchOAuthEndpoint {
 
                 String hashedPassphrase = hashPassphrase(randomlyGeneratedPassPhrase);
 
-                TwitchClient twitchClient = finishAuth(hashedPassphrase, code);
+                try {
+
+                    finishAuth(hashedPassphrase, code);
+
+                } catch (Exception e) {
+
+                    e.printStackTrace();
+
+                    response.status(500);
+
+                    return "Internal Server Error";
+                }
 
                 // return the response, this will display in the browser
                 return "Your passphrase is: " + randomlyGeneratedPassPhrase;
@@ -70,7 +81,7 @@ public class TwitchOAuthEndpoint {
     static final String APP_CLIENT_ID = System.getenv("APP_ID");
     static final String CLIENT_SECRET = System.getenv("APP_SECRET");
 
-    private TwitchClient finishAuth(String hashedPassphrase, String code) {
+    private void finishAuth(String hashedPassphrase, String code) {
 
         // finish the authentication process that the user began.
         TwitchIdentityProvider twitchIdentityProvider = new TwitchIdentityProvider(APP_CLIENT_ID, CLIENT_SECRET, "http://localhost/auth_callback");
@@ -92,8 +103,6 @@ public class TwitchOAuthEndpoint {
                 .build();
 
         TwitchClientRegistry.addClient(hashedPassphrase, twitchClient);
-
-        return twitchClient;
 
     }
 
