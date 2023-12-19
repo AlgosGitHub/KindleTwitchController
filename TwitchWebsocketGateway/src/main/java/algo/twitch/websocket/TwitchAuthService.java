@@ -14,7 +14,7 @@ import java.util.Objects;
 import static algo.twitch.websocket.OAuthScope.*;
 
 public class TwitchAuthService {
-    
+
     static final String REDIRECT_URL = "http://localhost/auth_callback";
     static String APP_CLIENT_ID;
     static String APP_CLIENT_SECRET;

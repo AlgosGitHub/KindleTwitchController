@@ -31,14 +31,8 @@ public class TwitchChatClient {
             eventManager.onEvent(IRCMessageEvent.class, event -> {
                 Optional<String> message = event.getMessage();
                 Optional<String> userDisplayName = event.getUserDisplayName();
-                Map<String, String> roles = event.getBadges();
-                String rolesString = roles.entrySet().stream()
-                        .map(entry -> entry.getKey() + "=" + entry.getValue())
-                        .collect(Collectors.joining(", "));
-
-
                 if(message.isPresent() && userDisplayName.isPresent()) {
-                    System.out.println(rolesString + event.getUser().getName() + " > " + message.get());
+                    System.out.println(event.getUser().getName() + " > " + message.get());
                     onMessage.accept(new ChatMessage(userDisplayName.get(), message.get()));
                 }
 
