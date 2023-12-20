@@ -21,10 +21,6 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.security.KeyStore;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class KindleWebsocketGateway extends WebSocketServer {
 
@@ -33,9 +29,8 @@ public class KindleWebsocketGateway extends WebSocketServer {
         KEY_STORE_PATH = "keystore.jks", // Adjust this path
         KEY_STORE_PASSWORD = "changeme";// System.getenv("KEY_STORE_PASSWORD");
 
-    public static List<WebSocket> activeSessions = new ArrayList<>();
-
-
+    TwitchChannelManager twitchChannelManager = new TwitchChannelManager();
+    
     public KindleWebsocketGateway(InetSocketAddress address) {
         super(address);
         setupSecureContext();
@@ -89,7 +84,8 @@ public class KindleWebsocketGateway extends WebSocketServer {
     @Override
     public void onOpen(WebSocket conn, ClientHandshake handshake) {
 
-        activeSessions.add(conn);
+        String twitchChannel = "m4rio_m"; //todo: source this via the hashCode
+        twitchChannelManager.addConnection(twitchChannel, conn);
         System.out.println("CONNECTED: " + conn.getRemoteSocketAddress().getAddress().getHostAddress());
 
     }
@@ -97,7 +93,7 @@ public class KindleWebsocketGateway extends WebSocketServer {
     @Override
     public void onClose(WebSocket conn, int code, String reason, boolean remote) {
 
-        activeSessions.remove(conn);
+        twitchChannelManager.removeConnectionFromAllChannels(conn);
         System.out.println("DISCONNECTED: " + conn.getRemoteSocketAddress().getAddress().getHostAddress() + " | " + reason + " | " + code);
 
     }
@@ -241,7 +237,9 @@ public class KindleWebsocketGateway extends WebSocketServer {
     private void handleGetChatMessage(WebSocket conn, String message) {
         try {
             String hashCode = getHashCodeFromMessage(message);
-            initiateChatSubscription(conn, hashCode);
+            String twitchChannel = "m4rio_m"; //todo: source this via the hashCode
+            twitchChannelManager.initiateChatSubscription(TwitchClientRegistry.getClient(hashCode), twitchChannel);
+
         } catch (Exception ex) {
             System.out.println("Failed to get hash code from message");
             ex.printStackTrace();
@@ -277,35 +275,6 @@ public class KindleWebsocketGateway extends WebSocketServer {
         return hashCode;
 
     }
-    private void initiateChatSubscription(WebSocket conn, String hashCode) {
-
-        TwitchClient twitchClient = TwitchClientRegistry.getClient(hashCode);
-        String twitchChannel = "AlgoBro"; //todo: source this via the hashCode
-
-        // todo: kill the subscription when the socket connection dies. otherwise, they're living forever.
-        new TwitchChatClient(twitchClient, twitchChannel, chatMessage -> {
-            try {
-
-                Map<String, Object> jsonMap = new HashMap<>();
-                jsonMap.put("type", "chat_message");
-                jsonMap.put("userName", chatMessage.userName());
-                jsonMap.put("chatMessage", chatMessage.chatMessage());
-
-                // Serialize the Java object to JSON
-                String jsonString = new ObjectMapper().writeValueAsString(jsonMap);
-
-                // sanity check: is the connection still open?
-                if(conn.isOpen())
-                    // send the message to the frontend
-                    conn.send(jsonString);
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
-
-    }
-
 
     @Override
     public void onError(WebSocket conn, Exception ex) {
