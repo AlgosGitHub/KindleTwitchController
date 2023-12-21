@@ -15,12 +15,12 @@ public class ObsController {
 
     public final String hashId;
 
-    public final String[] scenes;
-    private final WebSocket webSocket;
+    private final String[] scenes;
     public final String hostAddress;
 
-    public Consumer<Boolean> stateChangeListener;
-    public Consumer<String> sceneChangeListener;
+    private final WebSocket webSocket;
+    Consumer<Boolean> stateChangeListener;
+    Consumer<String> sceneChangeListener;
 
     public ObsController(String hashId, WebSocket webSocket, String currentScene, String[] scenes, boolean isStreaming) {
         this.hashId = hashId;
@@ -129,6 +129,18 @@ public class ObsController {
             log("Dispatching Scene Change Event...");
             sceneChangeListener.accept(currentScene);
         }
+    }
+
+    public String getCurrentScene() {
+        return currentScene;
+    }
+
+    public String[] getScenes() {
+        return scenes;
+    }
+
+    public boolean getStreamingState() {
+        return isStreaming;
     }
 
 }

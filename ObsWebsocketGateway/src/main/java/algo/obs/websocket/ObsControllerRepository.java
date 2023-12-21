@@ -23,7 +23,7 @@ public class ObsControllerRepository {
 
     }
 
-    private boolean sessionExists(String hashId) {
+    public boolean sessionExists(String hashId) {
         return sessions.containsKey(hashId);
     }
 

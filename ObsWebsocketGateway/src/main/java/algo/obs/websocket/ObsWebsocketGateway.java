@@ -12,7 +12,7 @@ import org.java_websocket.handshake.ClientHandshake;
  */
 public class ObsWebsocketGateway extends SecureWebSocketServer {
 
-    ObsControllerRepository sessions = new ObsControllerRepository();
+    public final ObsControllerRepository sessions = new ObsControllerRepository();
 
     public ObsWebsocketGateway(int port) {
         super(port);

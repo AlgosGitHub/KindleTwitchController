@@ -1,3 +1,14 @@
+
+let streaming= false;
+let selectedUser = "";
+let selectedUserMuted = false;
+let selectedUserBanned = false;
+
+// fail-safe, the variable isn't always set before the first message is added.
+let isUserScrolledUp = false;
+
+let hashCode = "88888";
+
 function addChatMessage(user, message) {
 
     var newMessage = document.createElement('div');
@@ -81,6 +92,27 @@ function selectMessage(messageElement) {
 // Adding an initial message and setting up interval for testing
 
 
+function sendChatSubscription(hashCode) {
+    // Send a subscribe message upon connecting
+    const message = {
+        type: 'get_chat',
+        hashCode: hashCode
+    };
+
+    // fire in the hole!
+    socket.send(JSON.stringify(message));
+}
+
+function sendBootstrapRequest(hashCode) {
+    // Send a subscribe message upon connecting
+    const message = {
+        type: 'get_bootstrap',
+        hashCode: hashCode
+    };
+
+    // fire in the hole!
+    socket.send(JSON.stringify(message));
+}
 
 function connectToServer(hashCode) {
 
@@ -88,33 +120,38 @@ function connectToServer(hashCode) {
 
     socket.addEventListener('open', function (event) {
 
-        // alert the kindle app user that we've connected to the chat server successfully.
+        // alert the Kindle app user that we've connected to the chat server successfully.
         addChatMessage("Kindle", "Connected to App Server!");
 
-        // Send a subscribe message upon connecting
-        const subscribeMessage = {
-            type: 'get_chat',
-            hashCode: hashCode
-        };
-
-        // fire in the hole!
-        socket.send(JSON.stringify(subscribeMessage));
+        sendChatSubscription(hashCode);
+        sendBootstrapRequest(hashCode);
 
     });
 
     socket.addEventListener('message', function (event) {
+
         const messageData = JSON.parse(event.data);
-        if (messageData.type == "chat_message") {
-            addChatMessage(messageData.userName, messageData.chatMessage);
+
+        switch (messageData.type) {
+            case "chat_message":
+                addChatMessage(messageData.userName, messageData.chatMessage);
+                console.log("Chat message received");
+                break;
+            case "set_scenes":
+                populateSceneOptions(messageData.scenes);
+                console.log("Scenes received");
+                break;
+            case "set_scene":
+                setCurrentScene(messageData.scene);
+                console.log("Current scene received");
+                break;
+            case "set_stream_state":
+                setStreamingState(messageData.streaming);
+                break;
+            default:
+                console.log("Unknown message type: " + messageData.type);
         }
-        if(messageData.type == "set_scenes") {
-            populateSceneOptions(messageData.scenes);
-            setCurrentScene(messageData.currentScene);
-        }
-        if(messageData.type == "stream_state") {
-            setStreamingState(messageData.isStreaming);
-            setStreamingButtonAction();
-        }
+
     });
 
     return socket;
@@ -238,22 +275,27 @@ function setUnmuteButton() {
 
 
 // Function to populate the select element with scene options
-function populateSceneOptions(jsonData) {
-    var selectElement = document.getElementById("sceneSwitch");
-    var scenes = jsonData.scenes;
-    for (var i = 0; i < scenes.length; i++) {
-        var option = document.createElement("option");
-        option.text = scenes[i];
-        selectElement.add(option);
-    }
+function populateSceneOptions(scenes) {
+
+    const selectElement = document.getElementById("sceneSwitch");
+
+    scenes.forEach(sceneName => {
+        const option = document.createElement("option");
+        option.textContent = sceneName;
+        console.log("Adding scene: " + sceneName);
+        selectElement.appendChild(option);
+    });
+
 }
 
 // Function to set the current scene in the select element
 function setCurrentScene(currentScene) {
+
+    addChatMessage("OBS", "Scene set to " + currentScene)
+
     var selectElement = document.getElementById("sceneSwitch");
-    var currentSceneName = currentScene.name;
     for (var i = 0; i < selectElement.options.length; i++) {
-        if (selectElement.options[i].text === currentSceneName) {
+        if (selectElement.options[i].text === currentScene) {
             selectElement.selectedIndex = i;
             break;
         }
@@ -262,68 +304,75 @@ function setCurrentScene(currentScene) {
 
 // Function to handle scene change
 function changeScene(selectedScene) {
-    // Implement your logic to change the scene here
+
+    addChatMessage("Kindle", "Changing Scene to: " + selectedScene)
+
     console.log("Selected scene: " + selectedScene);
-    var message = {
+
+    const message = {
         type: 'change_scene',
         hashCode: hashCode,
-        userName: selectedScene
+        scene: selectedScene
     };
+
     socket.send(JSON.stringify(message));
+
 }
 
 function setStreamingState(isStreaming) {
-    var selectElement = document.getElementById("sceneSwitch");
+
+    // set our global state
+    streaming = isStreaming;
+
+    // update the switch label
+    const startSwitch = document.getElementById("streamStartSwitch");
     if(isStreaming) {
-        selectElement.text = "Stop Streaming";
+        console.log("Stream is Started");
+        addChatMessage("OBS", "Stream is Started");
+        startSwitch.textContent = "Stop Stream";
     } else {
-        selectElement.text = "Start Streaming";
+        console.log("Stream is Stopped");
+        addChatMessage("OBS", "Stream is Stopped");
+        startSwitch.textContent = "Start Stream";
     }
+
+    // re-enable the switch, it's disabled by default. It's also disabled if we sent the start/stop command.
+    startSwitch.disabled = false;
+
 }
 
-function toggleStreamingButtonLabel() {
-    var selectElement = document.getElementById("sceneSwitch");
-    if(selectElement.text === "Start Streaming") {
-        selectElement.text = "Stop Streaming";
-    } else {
-        selectElement.text = "Start Streaming";
-    }
-}
-
-function setStreamingButtonAction() {
-    var selectElement = document.getElementById("sceneSwitch");
-    if(selectElement.text === "Start Streaming") {
-        selectElement.removeEventListener("click", stopStreaming);
-        selectElement.addEventListener("click", startStreaming);
-    } else {
-        selectElement.removeEventListener("click", startStreaming);
-        selectElement.addEventListener("click", stopStreaming);
-    }
-}
-
-function stopStreaming() {
-    var message = {
+function sendStopStreamingCommand() {
+    addChatMessage("Kindle", "Sending Stop Command to OBS...");
+    const message = {
         type: 'stop_streaming',
         hashCode: hashCode
     };
     socket.send(JSON.stringify(message));
-    toggleStreamingButtonLabel();
-    setStreamingButtonAction();
 }
 
-function startStreaming() {
-    var message = {
+function sendStartStreamingCommand() {
+    addChatMessage("Kindle", "Sending Start Command to OBS...");
+    const message = {
         type: 'start_streaming',
         hashCode: hashCode
     };
     socket.send(JSON.stringify(message));
-    toggleStreamingButtonLabel();
-    setStreamingButtonAction();
 }
 
-// fail-safe, the variable isn't always set before the first message is added.
-isUserScrolledUp = false;
+function startSwitch() {
 
-let hashCode = "88888";
+    const streamSwitch = document.getElementById("streamStartSwitch");
+
+    // disable the switch until we receive a call-back from OBS
+    streamSwitch.disabled = true;
+
+    if(streaming) {
+        sendStopStreamingCommand();
+    } else {
+        sendStartStreamingCommand();
+    }
+
+}
+
 
 let socket = connectToServer(hashCode);
