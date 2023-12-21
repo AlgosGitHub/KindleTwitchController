@@ -7,6 +7,8 @@ import com.github.philippheuer.credentialmanager.domain.OAuth2Credential;
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.TwitchClientBuilder;
 import com.github.twitch4j.auth.providers.TwitchIdentityProvider;
+import com.github.twitch4j.helix.domain.User;
+import com.github.twitch4j.helix.domain.UserList;
 import org.apache.http.client.utils.URIBuilder;
 
 import java.util.ArrayList;
@@ -56,13 +58,8 @@ public class TwitchAuthService {
     }
 
     //TODO: add proper implementation
-    public String getPassPhrase() {
-        return "passphrase";
-    }
-
-    //TODO: add proper implementation
-    public String hashPassphrase(String passphrase) {
-        return "88888";
+    public String generateSecretKey() {
+        return SecretKeyGenerator.nextKey();
     }
 
     public TwitchClient authenticate(String hashedPassphrase, String code) {
@@ -82,7 +79,16 @@ public class TwitchAuthService {
                     .withEnablePubSub(true)
                     .build();
 
-            TwitchClientRegistry.addClient(hashedPassphrase, twitchClient);
+            // get the authenticated user's details, we'll need the user-name for IRC chat.
+            UserList resultList = twitchClient.getHelix().getUsers(credentials.getAccessToken(), null, null).execute();
+
+            // get the first result, there should only be one.
+            User user = resultList.getUsers().getFirst();
+
+            System.out.println("Authenticated as: " + user.getDisplayName());
+
+            TwitchClientRegistry.addClient(hashedPassphrase, twitchClient, user);
+
             return twitchClient;
         } catch (RuntimeException e) {
             System.out.println("Error during authentication: " + e.getMessage());

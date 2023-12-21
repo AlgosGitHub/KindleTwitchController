@@ -305,7 +305,7 @@ public class KindleWebsocketGateway extends WebSocketServer {
 
     private void modCheck(String hashCode) {
         TwitchClient twitchClient = TwitchClientRegistry.getClient(hashCode);
-        String twitchChannel = "AlgoBro"; //todo: source this via the hashCode
+        String twitchChannel = TwitchClientRegistry.getUser(hashCode).getDisplayName();
         twitchClient.getChat().sendMessage(twitchChannel, "ModCheck");
     }
 
@@ -365,7 +365,7 @@ public class KindleWebsocketGateway extends WebSocketServer {
 
         System.out.println("Muting user: " + userName);
         TwitchClient twitchClient = TwitchClientRegistry.getClient(hashCode);
-        String twitchChannel = "AlgoBro"; //todo: source this via the hashCode
+        String twitchChannel = TwitchClientRegistry.getUser(hashCode).getDisplayName();
         twitchClient.getChat().sendMessage(twitchChannel, "/timeout " + userName + " 10000");
 
     }
@@ -374,7 +374,7 @@ public class KindleWebsocketGateway extends WebSocketServer {
 
         System.out.println("Unmuting user: " + userName);
         TwitchClient twitchClient = TwitchClientRegistry.getClient(hashCode);
-        String twitchChannel = "AlgoBro"; //todo: source this via the hashCode
+        String twitchChannel = TwitchClientRegistry.getUser(hashCode).getDisplayName();
         twitchClient.getChat().sendMessage(twitchChannel, "/untimeout " + userName);
     }
 
@@ -382,7 +382,7 @@ public class KindleWebsocketGateway extends WebSocketServer {
 
         System.out.println("Banning user: " + userName);
         TwitchClient twitchClient = TwitchClientRegistry.getClient(hashCode);
-        String twitchChannel = "AlgoBro"; //todo: source this via the hashCode
+        String twitchChannel = TwitchClientRegistry.getUser(hashCode).getDisplayName();
         twitchClient.getChat().sendMessage(twitchChannel, "/ban " + userName);
     }
 
@@ -390,7 +390,7 @@ public class KindleWebsocketGateway extends WebSocketServer {
 
         System.out.println("Unbanning user: " + userName);
         TwitchClient twitchClient = TwitchClientRegistry.getClient(hashCode);
-        String twitchChannel = "AlgoBro"; //todo: source this via the hashCode
+        String twitchChannel = TwitchClientRegistry.getUser(hashCode).getDisplayName();
         twitchClient.getChat().sendMessage(twitchChannel, "/unban " + userName);
     }
 
@@ -452,7 +452,7 @@ public class KindleWebsocketGateway extends WebSocketServer {
     private void initiateChatSubscription(WebSocket conn, String hashCode) {
 
         TwitchClient twitchClient = TwitchClientRegistry.getClient(hashCode);
-        String twitchChannel = "AlgoBro"; //todo: source this via the hashCode
+        String twitchChannel = TwitchClientRegistry.getUser(hashCode).getDisplayName();
 
         // todo: kill the subscription when the socket connection dies. otherwise, they're living forever.
         new TwitchChatClient(twitchClient, twitchChannel, chatMessage -> {

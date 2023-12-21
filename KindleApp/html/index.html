@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password Input Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 100px;
+        }
+        h1 {
+            font-size: 24px;
+        }
+        input[type="password"] {
+            font-size: 24px;
+            padding: 10px;
+            width: 200px;
+        }
+        #loginButton {
+            font-size: 20px;
+            padding: 10px 20px;
+            margin-top: 10px;
+        }
+        #error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+<h1>Enter a Six-Character Password:</h1>
+<input type="password" id="passwordInput" maxlength="6">
+<br>
+<button id="loginButton" disabled>Login</button>
+<p id="error"></p>
+
+<script>
+
+    const targetUrl = "http://192.168.0.193:88/app.html";
+
+    // Check if the password cookie exists
+    const savedPassword = getCookie("password");
+
+    if (savedPassword) {
+        //window.location.href = targetUrl;
+    }
+
+    // Listen for input in the password field
+    const passwordInput = document.getElementById("passwordInput");
+    const loginButton = document.getElementById("loginButton");
+    const error = document.getElementById("error");
+
+    passwordInput.addEventListener("input", () => {
+        const password = passwordInput.value;
+
+        if (password.length === 6) {
+            loginButton.disabled = false;
+            error.textContent = "";
+        } else {
+            loginButton.disabled = true;
+            error.textContent = "Password must be exactly six characters.";
+        }
+    });
+
+    // Listen for button click
+    loginButton.addEventListener("click", () => {
+        const password = passwordInput.value;
+
+        // Save the password as a cookie
+        setCookie("password", password);
+
+        // Redirect to Google
+        window.location.href = targetUrl;
+    });
+
+    // Cookie functions
+    function setCookie(name, value) {
+        var expirationDate = new Date();
+        expirationDate.setDate(expirationDate.getDate() + 7); // Expires in one week
+
+        // Set a test cookie
+        document.cookie = name + "=" + value + "; expires=" + expirationDate.toUTCString();
+    }
+
+    function getCookie(name) {
+        const cookieName = name + "=";
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            let cookie = cookies[i].trim();
+            if (cookie.startsWith(cookieName)) {
+                return cookie.substring(cookieName.length, cookie.length);
+            }
+        }
+        return null;
+    }
+</script>
+</body>
+</html>

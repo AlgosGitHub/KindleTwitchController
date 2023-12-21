@@ -7,7 +7,9 @@ let selectedUserBanned = false;
 // fail-safe, the variable isn't always set before the first message is added.
 let isUserScrolledUp = false;
 
-let hashCode = "88888";
+const savedPassword = getCookie("password");
+console.log("Saved password: " + savedPassword);
+let hashCode = savedPassword;
 
 function addChatMessage(user, message) {
 
@@ -374,5 +376,16 @@ function startSwitch() {
 
 }
 
+function getCookie(cookieName) {
+    var cookies = document.cookie.split(';');
+    for (var i = 0; i < cookies.length; i++) {
+        var cookie = cookies[i].trim();
+        var cookieParts = cookie.split('=');
+        if (cookieParts[0] === cookieName) {
+            return cookieParts[1];
+        }
+    }
+    return null;
+}
 
 let socket = connectToServer(hashCode);

@@ -5,6 +5,7 @@
       <module fileurl="file://$PROJECT_DIR$/KindleApp.iml" filepath="$PROJECT_DIR$/KindleApp.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/KindleTwitchCtrl.iml" filepath="$PROJECT_DIR$/.idea/KindleTwitchCtrl.iml" />
       <module fileurl="file://$PROJECT_DIR$/ObsEmbed.iml" filepath="$PROJECT_DIR$/ObsEmbed.iml" />
+      <module fileurl="file://$PROJECT_DIR$/TwitchStreamerLogin.iml" filepath="$PROJECT_DIR$/TwitchStreamerLogin.iml" />
     </modules>
   </component>
 </project>
