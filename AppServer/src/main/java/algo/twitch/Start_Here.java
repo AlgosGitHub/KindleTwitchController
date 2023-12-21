@@ -13,9 +13,10 @@ public class Start_Here {
             System.out.println("Starting Twitch OAuth2 Callback Endpoint...");
             new TwitchOAuthEndpoint(80);
             System.out.println("Starting OBS Websocket Gateway...");
-            new ObsWebsocketGateway(8081).start();
+            ObsWebsocketGateway obsWebsocketGateway = new ObsWebsocketGateway(8081);
+            obsWebsocketGateway.start();
             System.out.println("Starting Kindle Websocket Gateway...");
-            new KindleWebsocketGateway(new InetSocketAddress("0.0.0.0", 8080)).start();
+            new KindleWebsocketGateway(new InetSocketAddress("0.0.0.0", 8080), obsWebsocketGateway.sessions).start();
 
         } catch (Exception ex) {
             ex.printStackTrace();
