@@ -1,10 +1,14 @@
 package websocket;
 
+import algo.obs.websocket.ObsController;
+import algo.obs.websocket.ObsControllerRepository;
 import algo.twitch.TwitchClientRegistry;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.twitch4j.TwitchClient;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.java_websocket.WebSocket;
 import org.java_websocket.drafts.Draft;
 import org.java_websocket.exceptions.InvalidDataException;
@@ -35,11 +39,12 @@ public class KindleWebsocketGateway extends WebSocketServer {
 
     public static List<WebSocket> activeSessions = new ArrayList<>();
 
+    private final ObsControllerRepository obsControllerRepository;
 
-    public KindleWebsocketGateway(InetSocketAddress address) {
+    public KindleWebsocketGateway(InetSocketAddress address, ObsControllerRepository obsControllerRepository) {
         super(address);
+        this.obsControllerRepository = obsControllerRepository;
         setupSecureContext();
-
     }
 
     private void setupSecureContext() {
@@ -103,34 +108,185 @@ public class KindleWebsocketGateway extends WebSocketServer {
     }
 
     @Override
-    public void onMessage(WebSocket conn, String message) {
+    public void onMessage(WebSocket webSocket, String message) {
 
-        System.out.println("Received message from session " + conn.getRemoteSocketAddress().getAddress().getHostAddress());
+        try {
 
-        System.out.println("Message: \n"+message);
+            // Trust fall: Parse the message as a JSON object
+            JsonObject jsonMessage = JsonParser.parseString(message).getAsJsonObject();
 
-        if(message.contains("\"type\":\"get_chat\"")) {
-            handleGetChatMessage(conn, message);
+            // We'll need this for common-sense logging.
+            String hostAddress = webSocket.getRemoteSocketAddress().getAddress().getHostAddress();
+
+            // Sanity check: Ensure the message contains a "type" field
+            if(!jsonMessage.has("type")) throw new Exception("Message from ("+hostAddress+") does not contain a \"type\" field");
+
+            // Extract the "type" field as a string, now that we know it's present.
+            String messageType = jsonMessage.get("type").getAsString();
+
+            // Log the message type
+            System.out.println("Received Message from Kindle. | " + hostAddress + " | " + messageType);
+
+            switch(messageType) {
+                case "get_chat"         ->  handleChatSubscription(webSocket, message);
+                case "get_bootstrap"    ->  handleBootstrapQuery(webSocket, message);
+                case "mute_user"        ->  handleMuteUser(message);
+                case "unmute_user"      ->  handleUnmuteUser(message);
+                case "ban_user"         ->  handleBanUser(message);
+                case "unban_user"       ->  handleUnbanUser(message);
+                case "mod_check"        ->  handleModCheck(message);
+                case "start_streaming"  ->  handleStartStreamingCommand(message);
+                case "stop_streaming"   ->  handleStopStreamingCommand(message);
+                case "change_scene"     ->  handleSceneChangeCommand(message);
+                default                 ->  System.out.println("Unknown Message Type: " + messageType);
+            }
+
+        } catch (Exception ex) {
+            System.out.println("Error processing message. Dumping Message & Stack Trace...\n" + message);
+            ex.printStackTrace(System.out);
         }
 
-        if(message.contains("\"type\":\"mute_user\"")) {
-            handleMuteUser(message);
+    }
+
+    private void handleSceneChangeCommand(String message) {
+
+        try {
+
+            String hashId = getHashCodeFromMessage(message);
+            String sceneName = getSceneNameFromMessage(message);
+
+            System.out.println("Change Scene - " + hashId + " | " + sceneName);
+
+            ObsController obsController = obsControllerRepository.getSessionByHashId(hashId);
+
+            obsController.changeScene(sceneName);
+
+        } catch (Exception ex) {
+            System.out.println("Failed to handle scene change command. Dumping Stack Trace...");
+            ex.printStackTrace();
         }
 
-        if(message.contains("\"type\":\"unmute_user\"")) {
-            handleUnmuteUser(message);
+    }
+
+    private void handleStopStreamingCommand(String message) {
+
+        try {
+
+            String hashId = getHashCodeFromMessage(message);
+
+            System.out.println("Stop Streaming - " + hashId);
+
+            ObsController obsController = obsControllerRepository.getSessionByHashId(hashId);
+
+            obsController.stopStreaming();
+
+        } catch (Exception ex) {
+            System.out.println("Failed to handle stream stop command. Dumping Stack Trace...");
+            ex.printStackTrace();
         }
 
-        if(message.contains("\"type\":\"ban_user\"")) {
-            handleBanUser(message);
+
+    }
+
+    private void handleStartStreamingCommand(String message) {
+
+        try {
+
+            String hashId = getHashCodeFromMessage(message);
+
+            System.out.println("Start Streaming - " + hashId);
+
+            ObsController obsController = obsControllerRepository.getSessionByHashId(hashId);
+
+            obsController.startStreaming();
+
+        } catch (Exception ex) {
+            System.out.println("Failed to handle stream start command. Dumping Stack Trace...");
+            ex.printStackTrace();
+        }
+    }
+
+    private void handleBootstrapQuery(WebSocket webSocket, String message) {
+
+        try {
+
+            String hashId = getHashCodeFromMessage(message);
+
+            if(obsControllerRepository.sessionExists(hashId)) {
+
+                System.out.println("Retrieving OBS Bootstrap for " + hashId);
+
+                ObsController obsController = obsControllerRepository.getSessionByHashId(hashId);
+
+                sendScenes(webSocket, obsController.getScenes());
+                sendCurrentScene(webSocket, obsController.getCurrentScene());
+                sendStreamingState(webSocket, obsController.getStreamingState());
+
+                // set-up the subscriptions
+                obsController.subscribeToSceneChanges(sceneName -> sendCurrentScene(webSocket, sceneName));
+                obsController.subscribeToStreamingStateChanges(isStreaming -> sendStreamingState(webSocket, isStreaming));
+
+            } else System.out.println("No OBS Controller Session Exists for " + hashId);
+
+        } catch (Exception e) {
+            System.out.println("Failed to handle Bootstrap Query");
+        }
+        //todo: implement me once we've got the OBS controllers
+    }
+
+    private void sendCurrentScene(WebSocket webSocket, String currentScene) {
+
+        try {
+
+            Map<String, Object> jsonMap = new HashMap<>();
+            jsonMap.put("type", "set_scene");
+            jsonMap.put("scene", currentScene);
+
+            // Serialize the Java object to JSON
+            String jsonString = new ObjectMapper().writeValueAsString(jsonMap);
+
+            webSocket.send(jsonString);
+
+        } catch (Exception e) {
+            System.out.println("Failed to send current scene");
         }
 
-        if(message.contains("\"type\":\"unban_user\"")) {
-            handleUnbanUser(message);
+    }
+
+    private void sendScenes(WebSocket webSocket, String[] scenes) {
+
+        try {
+
+            Map<String, Object> jsonMap = new HashMap<>();
+            jsonMap.put("type", "set_scenes");
+            jsonMap.put("scenes", scenes);
+
+            // Serialize the Java object to JSON
+            String jsonString = new ObjectMapper().writeValueAsString(jsonMap);
+
+            webSocket.send(jsonString);
+
+        } catch (Exception e) {
+            System.out.println("Failed to send scenes");
         }
 
-        if(message.contains("\"type\":\"mod_check\"")) {
-            handleModCheck(message);
+    }
+
+    private void sendStreamingState(WebSocket webSocket, boolean isStreaming) {
+
+        try {
+
+            Map<String, Object> jsonMap = new HashMap<>();
+            jsonMap.put("type", "set_stream_state");
+            jsonMap.put("streaming", isStreaming);
+
+            // Serialize the Java object to JSON
+            String jsonString = new ObjectMapper().writeValueAsString(jsonMap);
+
+            webSocket.send(jsonString);
+
+        } catch (Exception e) {
+            System.out.println("Failed to send streaming state");
         }
 
     }
@@ -238,7 +394,7 @@ public class KindleWebsocketGateway extends WebSocketServer {
         twitchClient.getChat().sendMessage(twitchChannel, "/unban " + userName);
     }
 
-    private void handleGetChatMessage(WebSocket conn, String message) {
+    private void handleChatSubscription(WebSocket conn, String message) {
         try {
             String hashCode = getHashCodeFromMessage(message);
             initiateChatSubscription(conn, hashCode);
@@ -246,6 +402,21 @@ public class KindleWebsocketGateway extends WebSocketServer {
             System.out.println("Failed to get hash code from message");
             ex.printStackTrace();
         }
+    }
+
+    private String getSceneNameFromMessage(String message) throws JsonProcessingException {
+
+        // Create an ObjectMapper
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        // Parse the JSON string into a JsonNode
+        JsonNode jsonNode = objectMapper.readTree(message);
+
+        // Extract a named parameter
+        String sceneName = jsonNode.get("scene").asText();
+
+        return sceneName;
+
     }
 
     private String getHashCodeFromMessage(String message) throws JsonProcessingException {
@@ -277,6 +448,7 @@ public class KindleWebsocketGateway extends WebSocketServer {
         return hashCode;
 
     }
+
     private void initiateChatSubscription(WebSocket conn, String hashCode) {
 
         TwitchClient twitchClient = TwitchClientRegistry.getClient(hashCode);
