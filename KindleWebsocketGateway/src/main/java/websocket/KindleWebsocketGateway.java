@@ -396,7 +396,7 @@ public class KindleWebsocketGateway extends WebSocketServer {
     private void handleChatSubscription(WebSocket conn, String message) {
         try {
             String hashCode = getHashCodeFromMessage(message);
-            String twitchChannel = getUserNameFromMessage(message);
+            String twitchChannel = TwitchClientRegistry.getUser(hashCode).getDisplayName();
             twitchChannelManager.addConnection(twitchChannel, conn);
             TwitchClient twitchClient = TwitchClientRegistry.getClient(hashCode);
             twitchChannelManager.initiateChatSubscription(twitchClient, twitchChannel);
