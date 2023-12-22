@@ -133,7 +133,7 @@ public class KindleWebsocketGateway extends WebSocketServer {
                 case "unmute_user"      ->  handleUnmuteUser(message);
                 case "ban_user"         ->  handleBanUser(message);
                 case "unban_user"       ->  handleUnbanUser(message);
-                case "mod_check"        ->  handleModCheck(message);
+                //case "mod_check"        ->  handleModCheck(message);
                 case "start_streaming"  ->  handleStartStreamingCommand(message);
                 case "stop_streaming"   ->  handleStopStreamingCommand(message);
                 case "change_scene"     ->  handleSceneChangeCommand(message);
@@ -289,7 +289,7 @@ public class KindleWebsocketGateway extends WebSocketServer {
         }
 
     }
-
+/*
     private void handleModCheck(String message) {
         try {
 
@@ -306,7 +306,7 @@ public class KindleWebsocketGateway extends WebSocketServer {
         TwitchClient twitchClient = TwitchClientRegistry.getClient(hashCode);
         String twitchChannel = TwitchClientRegistry.getUser(hashCode).getDisplayName();
         twitchClient.getChat().sendMessage(twitchChannel, "ModCheck");
-    }
+    }*/
 
     private void handleBanUser(String message) {
         try {
