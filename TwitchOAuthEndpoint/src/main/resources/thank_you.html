@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logged In - Your Web Application</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            text-align: center;
+            max-width: 400px;
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        h1 {
+            font-size: 24px;
+            color: #333;
+        }
+
+        p {
+            font-size: 16px;
+            color: #555;
+            margin-bottom: 20px;
+        }
+
+        .secret-field {
+            margin-top: 20px;
+            position: relative;
+        }
+
+        .field-explanation {
+            font-size: 14px;
+            color: #777;
+            margin-top: 5px;
+        }
+
+        .show-button,
+        .copy-button {
+            background-color: #6441A4;
+            color: white;
+            font-size: 14px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            padding: 5px 10px;
+            margin-right: 10px;
+            transition: background-color 0.2s;
+        }
+
+        .show-button:hover,
+        .copy-button:hover {
+            background-color: #4D2C87;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Let's Rock!</h1>
+    <p>Navigate to kindle.algobro.io on your eReader.</p>
+    <p>Login with Your Secret Password.</p>
+
+    <!-- Secret Password Field -->
+    <div class="secret-field" id="password-field">
+        <p><strong>Secret Password:</strong></p>
+        <input type="text" value="$SECRET_PASSWORD" id="password-input" readonly>
+        <button class="show-button" onclick="toggleVisibility('password-input')">Toggle Hidden</button>
+        <button class="copy-button" onclick="copyToClipboard('password-input')">Copy</button>
+        <p class="field-explanation">This is your secret password. Keep it safe! Don't let <b>chat</b> see it!</p>
+    </div>
+
+    <!-- Secret Link Field -->
+    <div class="secret-field" id="link-field">
+        <p><strong>Secret Link:</strong></p>
+        <input type="text" value="https://obs.algobro.io/secret-link" id="link-input" readonly>
+        <button class="show-button" onclick="toggleVisibility('link-input')">Toggle Hidden</button>
+        <button class="copy-button" onclick="copyToClipboard('link-input')">Copy</button>
+        <p class="field-explanation">This is your secret link. Embed it into your OBS and grant it full access to remotely control your OBS.</p>
+    </div>
+</div>
+
+<script>
+    // Function to toggle the visibility of an input field
+    function toggleVisibility(inputId) {
+        const input = document.getElementById(inputId);
+        input.type = input.type === 'text' ? 'password' : 'text';
+    }
+
+    // Function to copy the content of an input field to the clipboard
+    function copyToClipboard(inputId) {
+        const input = document.getElementById(inputId);
+        input.select();
+        document.execCommand('copy');
+    }
+</script>
+</body>
+</html>

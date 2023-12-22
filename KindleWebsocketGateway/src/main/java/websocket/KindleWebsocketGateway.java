@@ -45,7 +45,6 @@ public class KindleWebsocketGateway extends WebSocketServer {
         super(address);
         this.obsControllerRepository = obsControllerRepository;
         setupSecureContext();
-
     }
 
     private void setupSecureContext() {
@@ -95,8 +94,6 @@ public class KindleWebsocketGateway extends WebSocketServer {
     @Override
     public void onOpen(WebSocket conn, ClientHandshake handshake) {
 
-        String twitchChannel = "m4rio_m"; //todo: source this via the hashCode
-        twitchChannelManager.addConnection(twitchChannel, conn);
         System.out.println("CONNECTED: " + conn.getRemoteSocketAddress().getAddress().getHostAddress());
 
     }
@@ -307,7 +304,7 @@ public class KindleWebsocketGateway extends WebSocketServer {
 
     private void modCheck(String hashCode) {
         TwitchClient twitchClient = TwitchClientRegistry.getClient(hashCode);
-        String twitchChannel = "AlgoBro"; //todo: source this via the hashCode
+        String twitchChannel = TwitchClientRegistry.getUser(hashCode).getDisplayName();
         twitchClient.getChat().sendMessage(twitchChannel, "ModCheck");
     }
 
@@ -367,7 +364,7 @@ public class KindleWebsocketGateway extends WebSocketServer {
 
         System.out.println("Muting user: " + userName);
         TwitchClient twitchClient = TwitchClientRegistry.getClient(hashCode);
-        String twitchChannel = "AlgoBro"; //todo: source this via the hashCode
+        String twitchChannel = TwitchClientRegistry.getUser(hashCode).getDisplayName();
         twitchClient.getChat().sendMessage(twitchChannel, "/timeout " + userName + " 10000");
 
     }
@@ -376,7 +373,7 @@ public class KindleWebsocketGateway extends WebSocketServer {
 
         System.out.println("Unmuting user: " + userName);
         TwitchClient twitchClient = TwitchClientRegistry.getClient(hashCode);
-        String twitchChannel = "AlgoBro"; //todo: source this via the hashCode
+        String twitchChannel = TwitchClientRegistry.getUser(hashCode).getDisplayName();
         twitchClient.getChat().sendMessage(twitchChannel, "/untimeout " + userName);
     }
 
@@ -384,7 +381,7 @@ public class KindleWebsocketGateway extends WebSocketServer {
 
         System.out.println("Banning user: " + userName);
         TwitchClient twitchClient = TwitchClientRegistry.getClient(hashCode);
-        String twitchChannel = "AlgoBro"; //todo: source this via the hashCode
+        String twitchChannel = TwitchClientRegistry.getUser(hashCode).getDisplayName();
         twitchClient.getChat().sendMessage(twitchChannel, "/ban " + userName);
     }
 
@@ -392,16 +389,14 @@ public class KindleWebsocketGateway extends WebSocketServer {
 
         System.out.println("Unbanning user: " + userName);
         TwitchClient twitchClient = TwitchClientRegistry.getClient(hashCode);
-        String twitchChannel = "AlgoBro"; //todo: source this via the hashCode
+        String twitchChannel = TwitchClientRegistry.getUser(hashCode).getDisplayName();
         twitchClient.getChat().sendMessage(twitchChannel, "/unban " + userName);
     }
 
     private void handleChatSubscription(WebSocket conn, String message) {
         try {
             String hashCode = getHashCodeFromMessage(message);
-            String twitchChannel = "m4rio_m"; //todo: source this via the hashCode
-            twitchChannelManager.initiateChatSubscription(TwitchClientRegistry.getClient(hashCode), twitchChannel);
-
+            initiateChatSubscription(conn, hashCode);
         } catch (Exception ex) {
             System.out.println("Failed to get hash code from message");
             ex.printStackTrace();

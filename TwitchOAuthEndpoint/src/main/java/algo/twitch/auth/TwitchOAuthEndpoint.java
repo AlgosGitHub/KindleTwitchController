@@ -27,13 +27,11 @@ public class TwitchOAuthEndpoint {
 
                 System.out.println("Auth Completed. OAuth2 Token: " + code.substring(code.length()-4));
 
-                String randomlyGeneratedPassPhrase = authService.getPassPhrase();
-
-                String hashedPassphrase = authService.hashPassphrase(randomlyGeneratedPassPhrase);
+                String secretKey = authService.generateSecretKey();
 
                 try {
 
-                    authService.authenticate(hashedPassphrase, code);
+                    authService.authenticate(secretKey, code);
 
                 } catch (Exception e) {
 
@@ -45,7 +43,7 @@ public class TwitchOAuthEndpoint {
                 }
 
                 // return the response, this will display in the browser
-                return "Your passphrase is: " + randomlyGeneratedPassPhrase;
+                return "Your Secret Key is: " + secretKey;
 
             } else {
 

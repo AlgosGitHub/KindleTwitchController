@@ -1,0 +1,2 @@
+We can swap DIVs effectively,
+so we can create a navigable menu.

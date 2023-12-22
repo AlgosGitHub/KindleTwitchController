@@ -212,7 +212,7 @@ function connectToServer() {
 
     log("Connecting to Websocket Gateway");
 
-    const socket = new WebSocket('ws://localhost:8081/obs_remote');
+    const socket = new WebSocket('ws://192.168.0.193:8081/obs_remote');
 
     socket.addEventListener('open', function (event) {
 
@@ -250,7 +250,7 @@ function connectToServer() {
 }
 
 // todo: make this configurable
-const debugMode = false;
+const debugMode = true;
 
 log("obsControls.js loaded & running");
 if(debugMode) {
@@ -261,8 +261,16 @@ if(debugMode) {
 listenForSceneChanges();
 listenForStreamingStateChanges();
 
-//todo: source this from the embed's parameters
-let hashCode = "88888";
+// Get the current URL
+var currentURL = window.location.href;
+
+// Create a URLSearchParams object from the URL
+var urlParams = new URLSearchParams(currentURL);
+
+// Retrieve individual parameters by their names
+let hashCode = urlParams.get('key');
+
+log("Hash Code: " + hashCode);
 
 // Connect to the Websocket Gateway
 let socket = connectToServer();
