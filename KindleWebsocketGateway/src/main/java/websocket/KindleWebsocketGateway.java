@@ -396,7 +396,10 @@ public class KindleWebsocketGateway extends WebSocketServer {
     private void handleChatSubscription(WebSocket conn, String message) {
         try {
             String hashCode = getHashCodeFromMessage(message);
-            initiateChatSubscription(conn, hashCode);
+            String twitchChannel = getUserNameFromMessage(message);
+            twitchChannelManager.addConnection(twitchChannel, conn);
+            TwitchClient twitchClient = TwitchClientRegistry.getClient(hashCode);
+            twitchChannelManager.initiateChatSubscription(twitchClient, twitchChannel);
         } catch (Exception ex) {
             System.out.println("Failed to get hash code from message");
             ex.printStackTrace();
