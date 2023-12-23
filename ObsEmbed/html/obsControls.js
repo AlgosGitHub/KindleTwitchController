@@ -170,13 +170,7 @@ function getStreamingState() {
 
             window.obsstudio.getStatus(function (status) {
 
-                const streamingStatus = status.streaming;
-
-                const result = {
-                    streaming: streamingStatus,
-                };
-
-                resolve(JSON.stringify(result));
+                resolve(status.streaming);
 
             });
 
@@ -190,16 +184,18 @@ function getStreamingState() {
 
 function sendBootstrapMessage() {
 
-    log("Sending Bootstrap Message");
+    log("Preparing Bootstrap Message...");
 
     // Use Promise.all to send both messages concurrently
-    Promise.all([getScenes(), getStreamingState()]).then(([scenes, streaming]) => {
+    Promise.all([getScenes(), getStreamingState()]).then(([scenes, streaming_state]) => {
+
+        log("Sending Bootstrap Message: " + scenes.size + " scenes, streaming: " + streaming_state);
 
         const message = {
             type: 'bootstrap',
             hashCode: hashCode,
             scenes: scenes,
-            streaming: streaming,
+            streaming: streaming_state,
         };
 
         socket.send(JSON.stringify(message));
