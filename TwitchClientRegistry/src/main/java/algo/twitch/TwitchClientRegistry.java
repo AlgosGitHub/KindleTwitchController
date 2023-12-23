@@ -6,23 +6,35 @@ import com.github.twitch4j.helix.domain.User;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * This is for keeping track of each Twitch User's TwitchClient instances.
+ */
 public class TwitchClientRegistry {
 
-    private static final Map<String, TwitchClient> clients = new HashMap<>();
-    private static final Map<String, User> users = new HashMap<>();
+    private final static Map<String, TwitchClientRegistryEntry> registry = new HashMap<>();
 
+    record TwitchClientRegistryEntry(TwitchClient twitchClient, User user) {}
+
+    /**
+     * Called upon authentication of a Twitch Account during Sign-up.
+     * Persist this hash until their Authentication expires or is withdrawn.
+     * We'll know that happens when we get a 401 Unauthorized response from Twitch.
+     *
+     * @param hash
+     * @param twitchClient
+     * @param user
+     */
     public static void addClient(String hash, TwitchClient twitchClient, User user) {
         System.out.println("Adding client hash: " + user.getDisplayName() + " -> " + hash);
-        clients.put(hash, twitchClient);
-        users.put(hash, user);
+        registry.put(hash, new TwitchClientRegistryEntry(twitchClient, user));
     }
 
     public static TwitchClient getClient(String hash) {
-        return clients.get(hash);
+        return registry.get(hash).twitchClient;
     }
 
     public static User getUser(String hash) {
-        return users.get(hash);
+        return registry.get(hash).user;
     }
 
 }
