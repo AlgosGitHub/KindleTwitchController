@@ -63,12 +63,19 @@ public class TwitchAuthService {
     }
 
     public TwitchClient authenticate(String hashedPassphrase, String code) {
-        System.out.println("Authenticating...");
+
+        System.out.println("Authenticating Twitch User...");
+
         TwitchIdentityProvider twitchIdentityProvider = new TwitchIdentityProvider(APP_CLIENT_ID, APP_CLIENT_SECRET, REDIRECT_URL);
+
         try {
+
+            // the Credential manager keeps our auth tokens fresh.
             OAuth2Credential credentials = twitchIdentityProvider.getCredentialByCode(code);
             CredentialManager credentialManager = CredentialManagerBuilder.builder().build();
             credentialManager.registerIdentityProvider(twitchIdentityProvider);
+
+            // this is where the magic happens.
             TwitchClient twitchClient = TwitchClientBuilder.builder()
                     .withClientId(APP_CLIENT_ID)
                     .withClientSecret(APP_CLIENT_SECRET)
@@ -85,7 +92,9 @@ public class TwitchAuthService {
             // get the first result, there should only be one.
             User user = resultList.getUsers().getFirst();
 
-            System.out.println("Authenticated as: " + user.getDisplayName());
+            System.out.println("Twitch User Authenticated: " + user.getDisplayName());
+
+            //todo: alert AlgoBro of all new sign-ups.
 
             TwitchClientRegistry.addClient(hashedPassphrase, twitchClient, user);
 
@@ -93,6 +102,8 @@ public class TwitchAuthService {
         } catch (RuntimeException e) {
             System.out.println("Error during authentication: " + e.getMessage());
         }
-        return null;
+
+        // todo: more elegant error handling.
+        throw new RuntimeException("Failed to authenticate user.");
     }
 }
