@@ -89,6 +89,9 @@ function selectMessage(messageElement) {
     setMuteButton();
     setBanButton();
 
+    // Show the selected user panel
+    showSelectedUserDiv();
+
 }
 
 // Adding an initial message and setting up interval for testing
@@ -388,4 +391,19 @@ function getCookie(cookieName) {
     return null;
 }
 
+function showSelectedUserDiv() {
+    const myDiv = document.getElementById("selected-message-panel");
+    myDiv.style.display = "block";
+}
+
+// Function to hide the DIV
+function hideSelectedUserDiv() {
+    const myDiv = document.getElementById("selected-message-panel");
+    myDiv.style.display = "none";
+}
+
+// hide the selected user div by default. Assigning a default class style doesn't work.
+hideSelectedUserDiv();
+
 let socket = connectToServer(hashCode);
+document.getElementById("hide-button").addEventListener("click", hideSelectedUserDiv);

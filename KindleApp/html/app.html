@@ -45,15 +45,44 @@
         .chat-message.selected {
             background-color: #e0e0e0;
         }
-        #selected-message {
-            margin-top: 10px;
+
+
+
+        .selected-message {
+            display: flex;
+            flex-direction: column;
         }
-        /* New styles for buttons */
-        #selected-message button {
-            width: 32%; /* Adjust as needed for spacing */
-            font-size: 20px; /* Larger font size */
+
+        .selected-message-user-name {
+            font-size: 24px;
+            margin: 5px 5px;
+        }
+
+        .button-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .button {
+            flex-grow: 1; /* Make the middle buttons fill available space */
+            height: 64px;
+            font-size: 32px; /* Larger font size */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icon-button {
+            max-width: 64px;
+            max-height: 64px;
             padding: 10px;
-            margin: 5px 0; /* Space above and below the buttons */
+            cursor: pointer;
+        }
+
+        .hidden {
+            display: none;
         }
     </style>
 </head>
@@ -68,12 +97,23 @@
     <div id="chat-container">
         <div id="chat"></div>
     </div>
-    <div id="selected-message">
-        <p>User: <span id="message-user"></span></p>
-        <button id="muteButton" >Mute</button>
-        <button id="banButton" >Ban</button>
+    <div class="selected-message" id="selected-message-panel">
+        <div class="selected-message-user-name">
+            Selected User: <span id="message-user"></span>
+        </div>
+        <div class="button-row">
+            <button class="button icon-button" id="padlock-button">
+                <img src="img/padlock.png" alt="Unlock Timeout/Ban" style="max-width: 100%; max-height: 100%;">
+            </button>
+            <button class="button" id="muteButton" disabled>Timeout</button>
+            <button class="button" id="banButton" disabled>Ban</button>
+            <button class="button icon-button" id="hide-button" >
+                <img src="img/down.png" alt="Hide This Panel" style="max-width: 100%; max-height: 100%;">
+            </button>
+        </div>
     </div>
 
     <script src="app.js"></script>
+    <script src="locking-mod-menu.js"></script>
 </body>
 </html>
