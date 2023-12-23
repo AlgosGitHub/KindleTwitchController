@@ -374,14 +374,23 @@ function sendStartStreamingCommand() {
 function startSwitch() {
 
     const streamSwitch = document.getElementById("streamStartSwitch");
+    const label = document.getElementById("stream-state-change-label");
 
     // disable the switch until we receive a call-back from OBS
     streamSwitch.disabled = true;
 
     if(streaming) {
-        sendStopStreamingCommand();
+        // are you sure you want to STOP the stream?
+        label.textContent = "STOP";
+        showDialog(() => {
+            sendStopStreamingCommand();
+        });
     } else {
-        sendStartStreamingCommand();
+        // are you sure you want to START the stream?
+        label.textContent = "START";
+        showDialog(() => {
+            sendStartStreamingCommand();
+        });
     }
 
 }
@@ -432,6 +441,34 @@ function hideObsVisibilityButton() {
 function showObsVisibilityButton() {
     const showObsButton = document.getElementById("show-obs-button");
     showObsButton.style.display = "block";
+}
+
+// Function to show the dialog and overlay
+function showDialog(successCallback) {
+    const overlay = document.getElementById('overlay');
+    const dialog = document.getElementById('confirmationDialog');
+
+    overlay.style.display = 'block';
+    dialog.style.display = 'block';
+
+    // Add event listener to handle the "Yes" button click
+    const yesButton = document.getElementById('yesButton');
+    yesButton.addEventListener('click', () => {
+        closeDialog();
+        if (typeof successCallback === 'function') {
+            successCallback();
+        }
+    });
+
+    // Add event listener to close the dialog and overlay when clicking outside the dialog
+    overlay.addEventListener('click', closeDialog);
+
+    // Function to close the dialog and overlay
+    function closeDialog() {
+        overlay.style.display = 'none';
+        dialog.style.display = 'none';
+        yesButton.removeEventListener('click', closeDialog);
+    }
 }
 
 let socket = connectToServer(hashCode);

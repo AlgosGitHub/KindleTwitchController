@@ -85,9 +85,56 @@
             height: 100%;
             object-fit: contain; /* Resize the image to fit inside the container */
         }
+
+        /* Styling for the overlay */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
+        }
+
+        /* Styling for the confirmation dialog */
+        .confirmation-dialog {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 300px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            text-align: center;
+            z-index: 1;
+        }
+
+        /* Styling for the "Yes" button */
+        .confirmation-button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
+
+    <!-- Overlay -->
+    <div id="overlay" class="overlay"></div>
+
+    <!-- Confirmation Dialog -->
+    <div id="confirmationDialog" class="confirmation-dialog">
+        <p>Are you sure you want to <span id="stream-state-change-label"></span> the stream?</p>
+        <p>Tap outside this dialog to cancel.</p>
+        <button id="yesButton" class="confirmation-button">Yes</button>
+    </div>
+
     <button class="obs-icon-container" id="show-obs-button" onclick="showObsControlDiv()">
         <img src="img/obs-icon.png" alt="OBS Icon" class="obs-icon">
     </button>
