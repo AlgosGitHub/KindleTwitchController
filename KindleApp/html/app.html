@@ -12,25 +12,13 @@
             flex-direction: column;
         }
         #control-panel {
-            /* Adjust the height as needed */
-            height: 60px; 
-            background-color: #f2f2f2;
-            /* Other styling */
+            display: flex;
+            flex-direction: column;
         }
 
         #chat-container {
             flex-grow: 1; /* Takes up remaining space */
             overflow-y: auto; /* Adds scrollbar to chat container */
-        }
-        #toolbar {
-            background-color: #f2f2f2;
-            padding: 10px;
-            text-align: center;
-            font-size: 20px; /* Larger font size */
-        }
-        #toolbar button,select {
-            font-size: 20px; /* Larger font size */
-            width: 32%; /* Adjust as needed for spacing */
         }
         #chat {
             height: 100%; /* Adjust as necessary */
@@ -81,17 +69,39 @@
             cursor: pointer;
         }
 
-        .hidden {
-            display: none;
+        .obs-icon-container {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 64px;
+            height: 64px;
+            background-color: #ffffff; /* Set the background color of the container */
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.3); /* Add a shadow for better visibility */
+            border: none;
+        }
+
+        .obs-icon {
+            width: 100%;
+            height: 100%;
+            object-fit: contain; /* Resize the image to fit inside the container */
         }
     </style>
 </head>
 <body>
+    <button class="obs-icon-container" id="show-obs-button" onclick="showObsControlDiv()">
+        <img src="img/obs-icon.png" alt="OBS Icon" class="obs-icon">
+    </button>
     <div id="control-panel">
-        <div id="toolbar">
-            <button id="streamStartSwitch" onclick="startSwitch()"></button>
-            <select id="sceneSwitch" onchange="changeScene(this.value)">
+        <div id="toolbar" class="button-row">
+            <button class="button icon-button" id="padlock-obs-button">
+                <img src="img/padlock.png" alt="Unlock Timeout/Ban" style="max-width: 100%; max-height: 100%;">
+            </button>
+            <button class="button" id="streamStartSwitch" onclick="startSwitch()" disabled></button>
+            <select id="sceneSwitch" onchange="changeScene(this.value)" disabled>
             </select>
+            <button class="button icon-button" id="hide-obs-button" >
+                <img src="img/up.png" alt="Hide This Panel" style="max-width: 100%; max-height: 100%;">
+            </button>
         </div>
     </div>
     <div id="chat-container">
@@ -102,12 +112,12 @@
             Selected User: <span id="message-user"></span>
         </div>
         <div class="button-row">
-            <button class="button icon-button" id="padlock-button">
+            <button class="button icon-button" id="padlock-mod-button">
                 <img src="img/padlock.png" alt="Unlock Timeout/Ban" style="max-width: 100%; max-height: 100%;">
             </button>
             <button class="button" id="muteButton" disabled>Timeout</button>
             <button class="button" id="banButton" disabled>Ban</button>
-            <button class="button icon-button" id="hide-button" >
+            <button class="button icon-button" id="hide-mod-button" >
                 <img src="img/down.png" alt="Hide This Panel" style="max-width: 100%; max-height: 100%;">
             </button>
         </div>
@@ -115,5 +125,6 @@
 
     <script src="app.js"></script>
     <script src="locking-mod-menu.js"></script>
+    <script src="locking-obs-menu.js"></script>
 </body>
 </html>

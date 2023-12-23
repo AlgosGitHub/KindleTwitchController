@@ -341,9 +341,6 @@ function setStreamingState(isStreaming) {
         startSwitch.textContent = "Start Stream";
     }
 
-    // re-enable the switch, it's disabled by default. It's also disabled if we sent the start/stop command.
-    startSwitch.disabled = false;
-
 }
 
 function sendStopStreamingCommand() {
@@ -402,8 +399,34 @@ function hideSelectedUserDiv() {
     myDiv.style.display = "none";
 }
 
+function showObsControlDiv() {
+    const myDiv = document.getElementById("control-panel");
+    myDiv.style.display = "block";
+    hideObsVisibilityButton();
+}
+
+// Function to hide the DIV
+function hideObsControlDiv() {
+    const myDiv = document.getElementById("control-panel");
+    myDiv.style.display = "none";
+    showObsVisibilityButton();
+}
 // hide the selected user div by default. Assigning a default class style doesn't work.
 hideSelectedUserDiv();
 
+function hideObsVisibilityButton() {
+    const showObsButton = document.getElementById("show-obs-button");
+    showObsButton.style.display = "none";
+}
+
+function showObsVisibilityButton() {
+    const showObsButton = document.getElementById("show-obs-button");
+    showObsButton.style.display = "block";
+}
+
 let socket = connectToServer(hashCode);
-document.getElementById("hide-button").addEventListener("click", hideSelectedUserDiv);
+
+hideObsControlDiv();
+
+document.getElementById("hide-mod-button").addEventListener("click", hideSelectedUserDiv);
+document.getElementById("hide-obs-button").addEventListener("click", hideObsControlDiv);
