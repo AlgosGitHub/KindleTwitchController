@@ -119,6 +119,11 @@ function sendBootstrapRequest(hashCode) {
     socket.send(JSON.stringify(message));
 }
 
+function handleObsNotFound() {
+    addChatMessage("Kindle", "OBS Embed not found. Please check your OBS Embed and then refresh this page.");
+    hideObsVisibilityButton();
+}
+
 function connectToServer(hashCode) {
 
     const socket = new WebSocket('ws://192.168.0.193:8080/kindle_chat');
@@ -152,6 +157,9 @@ function connectToServer(hashCode) {
                 break;
             case "set_stream_state":
                 setStreamingState(messageData.streaming);
+                break;
+            case "obs_not_found":
+                handleObsNotFound();
                 break;
             default:
                 console.log("Unknown message type: " + messageData.type);
