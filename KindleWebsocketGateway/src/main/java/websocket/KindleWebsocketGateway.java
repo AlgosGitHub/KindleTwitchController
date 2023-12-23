@@ -25,9 +25,7 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.security.KeyStore;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class KindleWebsocketGateway extends WebSocketServer {
@@ -37,7 +35,7 @@ public class KindleWebsocketGateway extends WebSocketServer {
         KEY_STORE_PATH = "keystore.jks", // Adjust this path
         KEY_STORE_PASSWORD = "changeme";// System.getenv("KEY_STORE_PASSWORD");
 
-    TwitchChannelManager twitchChannelManager = new TwitchChannelManager();
+    TwitchChannelManager twitchChatSubscriptionManager = new TwitchChannelManager();
 
     private final ObsControllerRepository obsControllerRepository;
 
@@ -101,7 +99,7 @@ public class KindleWebsocketGateway extends WebSocketServer {
     @Override
     public void onClose(WebSocket conn, int code, String reason, boolean remote) {
 
-        twitchChannelManager.removeConnectionFromAllChannels(conn);
+        twitchChatSubscriptionManager.unsubscribeSocket(conn);
         System.out.println("DISCONNECTED: " + conn.getRemoteSocketAddress().getAddress().getHostAddress() + " | " + reason + " | " + code);
 
     }
@@ -395,11 +393,21 @@ public class KindleWebsocketGateway extends WebSocketServer {
 
     private void handleChatSubscription(WebSocket conn, String message) {
         try {
+
             String hashCode = getHashCodeFromMessage(message);
+
+            System.out.println("Subscribing to chat for " + hashCode);
+
+            // the twitch user can only subscribe to their own channel (for now)
             String twitchChannel = TwitchClientRegistry.getUser(hashCode).getDisplayName();
-            twitchChannelManager.addConnection(twitchChannel, conn);
+
+            // get the twitch user's client.
             TwitchClient twitchClient = TwitchClientRegistry.getClient(hashCode);
-            twitchChannelManager.initiateChatSubscription(twitchClient, twitchChannel);
+
+            // register the chat subscription
+            twitchChatSubscriptionManager.addChatSubscription(twitchClient.getChat(), twitchChannel, conn);
+
+
         } catch (Exception ex) {
             System.out.println("Failed to get hash code from message");
             ex.printStackTrace();
