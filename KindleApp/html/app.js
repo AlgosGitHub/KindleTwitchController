@@ -16,6 +16,7 @@ function addChatMessage(user, message) {
     var newMessage = document.createElement('div');
     newMessage.classList.add('chat-message');
 
+/* keep this, we'll want it later when we re-introduce timestamps
     // Create spans for timestamp, user, and message
     var timestampSpan = document.createElement('span');
     timestampSpan.classList.add('timestamp');
@@ -23,6 +24,7 @@ function addChatMessage(user, message) {
 
     var separator1 = document.createElement('span');
     separator1.textContent = " | ";
+*/
 
     var userSpan = document.createElement('span');
     userSpan.classList.add('user');
@@ -36,8 +38,8 @@ function addChatMessage(user, message) {
     messageSpan.textContent = message;
 
     // Append the spans to the newMessage container
-    newMessage.appendChild(timestampSpan);
-    newMessage.appendChild(separator1);
+    //newMessage.appendChild(timestampSpan);
+    //newMessage.appendChild(separator1);
     newMessage.appendChild(userSpan);
     newMessage.appendChild(separator2);
     newMessage.appendChild(messageSpan);
