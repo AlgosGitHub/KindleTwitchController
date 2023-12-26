@@ -12,25 +12,13 @@
             flex-direction: column;
         }
         #control-panel {
-            /* Adjust the height as needed */
-            height: 60px; 
-            background-color: #f2f2f2;
-            /* Other styling */
+            display: flex;
+            flex-direction: column;
         }
 
         #chat-container {
             flex-grow: 1; /* Takes up remaining space */
             overflow-y: auto; /* Adds scrollbar to chat container */
-        }
-        #toolbar {
-            background-color: #f2f2f2;
-            padding: 10px;
-            text-align: center;
-            font-size: 20px; /* Larger font size */
-        }
-        #toolbar button,select {
-            font-size: 20px; /* Larger font size */
-            width: 32%; /* Adjust as needed for spacing */
         }
         #chat {
             height: 100%; /* Adjust as necessary */
@@ -45,36 +33,145 @@
         .chat-message.selected {
             background-color: #e0e0e0;
         }
-        #selected-message {
-            margin-top: 10px;
+
+
+
+        .selected-message {
+            display: flex;
+            flex-direction: column;
         }
-        /* New styles for buttons */
-        #selected-message button {
-            width: 32%; /* Adjust as needed for spacing */
-            font-size: 20px; /* Larger font size */
+
+        .selected-message-user-name {
+            font-size: 24px;
+            margin: 5px 5px;
+        }
+
+        .button-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .button {
+            flex-grow: 1; /* Make the middle buttons fill available space */
+            height: 64px;
+            font-size: 32px; /* Larger font size */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icon-button {
+            max-width: 64px;
+            max-height: 64px;
             padding: 10px;
-            margin: 5px 0; /* Space above and below the buttons */
+            cursor: pointer;
+        }
+
+        .obs-icon-container {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 64px;
+            height: 64px;
+            background-color: #ffffff; /* Set the background color of the container */
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.3); /* Add a shadow for better visibility */
+            border: none;
+        }
+
+        .obs-icon {
+            width: 100%;
+            height: 100%;
+            object-fit: contain; /* Resize the image to fit inside the container */
+        }
+
+        /* Styling for the overlay */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
+        }
+
+        /* Styling for the confirmation dialog */
+        .confirmation-dialog {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 300px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            text-align: center;
+            z-index: 1;
+        }
+
+        /* Styling for the "Yes" button */
+        .confirmation-button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
+
+    <!-- Overlay -->
+    <div id="overlay" class="overlay"></div>
+
+    <!-- Confirmation Dialog -->
+    <div id="confirmationDialog" class="confirmation-dialog">
+        <p>Are you sure you want to <span id="stream-state-change-label"></span> the stream?</p>
+        <p>Tap outside this dialog to cancel.</p>
+        <button id="yesButton" class="confirmation-button">Yes</button>
+    </div>
+
+    <button class="obs-icon-container" id="show-obs-button" onclick="showObsControlDiv()">
+        <img src="img/obs-icon.png" alt="OBS Icon" class="obs-icon">
+    </button>
     <div id="control-panel">
-        <div id="toolbar">
-            <button id="streamStartSwitch" onclick="startSwitch()"></button>
-            <select id="sceneSwitch" onchange="changeScene(this.value)">
+        <div id="toolbar" class="button-row">
+            <button class="button icon-button" id="padlock-obs-button">
+                <img src="img/padlock.png" alt="Unlock Timeout/Ban" style="max-width: 100%; max-height: 100%;">
+            </button>
+            <button class="button" id="streamStartSwitch" onclick="startSwitch()" disabled></button>
+            <select id="sceneSwitch" onchange="changeScene(this.value)" disabled>
             </select>
+            <button class="button icon-button" id="hide-obs-button" >
+                <img src="img/up.png" alt="Hide This Panel" style="max-width: 100%; max-height: 100%;">
+            </button>
         </div>
     </div>
     <div id="chat-container">
         <div id="chat"></div>
     </div>
-    <div id="selected-message">
-        <p>User: <span id="message-user"></span></p>
-        <button id="muteButton" >Mute</button>
-        <button id="banButton" >Ban</button>
-        <button onclick="sendModCheck()">ModCheck</button>
+    <div class="selected-message" id="selected-message-panel">
+        <div class="selected-message-user-name">
+            Selected User: <span id="message-user"></span>
+        </div>
+        <div class="button-row">
+            <button class="button icon-button" id="padlock-mod-button">
+                <img src="img/padlock.png" alt="Unlock Timeout/Ban" style="max-width: 100%; max-height: 100%;">
+            </button>
+            <button class="button" id="muteButton" disabled>Timeout</button>
+            <button class="button" id="banButton" disabled>Ban</button>
+            <button class="button icon-button" id="hide-mod-button" >
+                <img src="img/down.png" alt="Hide This Panel" style="max-width: 100%; max-height: 100%;">
+            </button>
+        </div>
     </div>
 
     <script src="app.js"></script>
+    <script src="locking-mod-menu.js"></script>
+    <script src="locking-obs-menu.js"></script>
 </body>
 </html>

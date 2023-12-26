@@ -131,7 +131,7 @@ public class KindleWebsocketGateway extends WebSocketServer {
                 case "unmute_user"      ->  handleUnmuteUser(message);
                 case "ban_user"         ->  handleBanUser(message);
                 case "unban_user"       ->  handleUnbanUser(message);
-                case "mod_check"        ->  handleModCheck(message);
+                //case "mod_check"        ->  handleModCheck(message);
                 case "start_streaming"  ->  handleStartStreamingCommand(message);
                 case "stop_streaming"   ->  handleStopStreamingCommand(message);
                 case "change_scene"     ->  handleSceneChangeCommand(message);
@@ -223,12 +223,32 @@ public class KindleWebsocketGateway extends WebSocketServer {
                 obsController.subscribeToSceneChanges(sceneName -> sendCurrentScene(webSocket, sceneName));
                 obsController.subscribeToStreamingStateChanges(isStreaming -> sendStreamingState(webSocket, isStreaming));
 
-            } else System.out.println("No OBS Controller Session Exists for " + hashId);
+            } else {
+                System.out.println("No OBS Controller Session Exists for " + hashId);
+                sendObsNotFoundMessage(webSocket);
+            }
 
         } catch (Exception e) {
             System.out.println("Failed to handle Bootstrap Query");
         }
         //todo: implement me once we've got the OBS controllers
+    }
+
+    private void sendObsNotFoundMessage(WebSocket webSocket) {
+
+            try {
+
+                Map<String, Object> jsonMap = new HashMap<>();
+                jsonMap.put("type", "obs_not_found");
+
+                // Serialize the Java object to JSON
+                String jsonString = new ObjectMapper().writeValueAsString(jsonMap);
+
+                webSocket.send(jsonString);
+
+            } catch (Exception e) {
+                System.out.println("Failed to send OBS Not Found message");
+            }
     }
 
     private void sendCurrentScene(WebSocket webSocket, String currentScene) {
@@ -287,7 +307,7 @@ public class KindleWebsocketGateway extends WebSocketServer {
         }
 
     }
-
+/*
     private void handleModCheck(String message) {
         try {
 
@@ -304,7 +324,7 @@ public class KindleWebsocketGateway extends WebSocketServer {
         TwitchClient twitchClient = TwitchClientRegistry.getClient(hashCode);
         String twitchChannel = TwitchClientRegistry.getUser(hashCode).getDisplayName();
         twitchClient.getChat().sendMessage(twitchChannel, "ModCheck");
-    }
+    }*/
 
     private void handleBanUser(String message) {
         try {

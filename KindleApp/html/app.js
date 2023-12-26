@@ -16,6 +16,7 @@ function addChatMessage(user, message) {
     var newMessage = document.createElement('div');
     newMessage.classList.add('chat-message');
 
+/* keep this, we'll want it later when we re-introduce timestamps
     // Create spans for timestamp, user, and message
     var timestampSpan = document.createElement('span');
     timestampSpan.classList.add('timestamp');
@@ -23,6 +24,7 @@ function addChatMessage(user, message) {
 
     var separator1 = document.createElement('span');
     separator1.textContent = " | ";
+*/
 
     var userSpan = document.createElement('span');
     userSpan.classList.add('user');
@@ -36,8 +38,8 @@ function addChatMessage(user, message) {
     messageSpan.textContent = message;
 
     // Append the spans to the newMessage container
-    newMessage.appendChild(timestampSpan);
-    newMessage.appendChild(separator1);
+    //newMessage.appendChild(timestampSpan);
+    //newMessage.appendChild(separator1);
     newMessage.appendChild(userSpan);
     newMessage.appendChild(separator2);
     newMessage.appendChild(messageSpan);
@@ -89,6 +91,9 @@ function selectMessage(messageElement) {
     setMuteButton();
     setBanButton();
 
+    // Show the selected user panel
+    showSelectedUserDiv();
+
 }
 
 // Adding an initial message and setting up interval for testing
@@ -114,6 +119,11 @@ function sendBootstrapRequest(hashCode) {
 
     // fire in the hole!
     socket.send(JSON.stringify(message));
+}
+
+function handleObsNotFound() {
+    addChatMessage("Kindle", "OBS Embed not found. Please check your OBS Embed and then refresh this page.");
+    hideObsVisibilityButton();
 }
 
 function connectToServer(hashCode) {
@@ -149,6 +159,9 @@ function connectToServer(hashCode) {
                 break;
             case "set_stream_state":
                 setStreamingState(messageData.streaming);
+                break;
+            case "obs_not_found":
+                handleObsNotFound();
                 break;
             default:
                 console.log("Unknown message type: " + messageData.type);
@@ -338,9 +351,6 @@ function setStreamingState(isStreaming) {
         startSwitch.textContent = "Start Stream";
     }
 
-    // re-enable the switch, it's disabled by default. It's also disabled if we sent the start/stop command.
-    startSwitch.disabled = false;
-
 }
 
 function sendStopStreamingCommand() {
@@ -364,14 +374,23 @@ function sendStartStreamingCommand() {
 function startSwitch() {
 
     const streamSwitch = document.getElementById("streamStartSwitch");
+    const label = document.getElementById("stream-state-change-label");
 
     // disable the switch until we receive a call-back from OBS
     streamSwitch.disabled = true;
 
     if(streaming) {
-        sendStopStreamingCommand();
+        // are you sure you want to STOP the stream?
+        label.textContent = "STOP";
+        showDialog(() => {
+            sendStopStreamingCommand();
+        });
     } else {
-        sendStartStreamingCommand();
+        // are you sure you want to START the stream?
+        label.textContent = "START";
+        showDialog(() => {
+            sendStartStreamingCommand();
+        });
     }
 
 }
@@ -388,4 +407,73 @@ function getCookie(cookieName) {
     return null;
 }
 
+function showSelectedUserDiv() {
+    const myDiv = document.getElementById("selected-message-panel");
+    myDiv.style.display = "block";
+}
+
+// Function to hide the DIV
+function hideSelectedUserDiv() {
+    const myDiv = document.getElementById("selected-message-panel");
+    myDiv.style.display = "none";
+}
+
+function showObsControlDiv() {
+    const myDiv = document.getElementById("control-panel");
+    myDiv.style.display = "block";
+    hideObsVisibilityButton();
+}
+
+// Function to hide the DIV
+function hideObsControlDiv() {
+    const myDiv = document.getElementById("control-panel");
+    myDiv.style.display = "none";
+    showObsVisibilityButton();
+}
+// hide the selected user div by default. Assigning a default class style doesn't work.
+hideSelectedUserDiv();
+
+function hideObsVisibilityButton() {
+    const showObsButton = document.getElementById("show-obs-button");
+    showObsButton.style.display = "none";
+}
+
+function showObsVisibilityButton() {
+    const showObsButton = document.getElementById("show-obs-button");
+    showObsButton.style.display = "block";
+}
+
+// Function to show the dialog and overlay
+function showDialog(successCallback) {
+    const overlay = document.getElementById('overlay');
+    const dialog = document.getElementById('confirmationDialog');
+
+    overlay.style.display = 'block';
+    dialog.style.display = 'block';
+
+    // Add event listener to handle the "Yes" button click
+    const yesButton = document.getElementById('yesButton');
+    yesButton.addEventListener('click', () => {
+        closeDialog();
+        if (typeof successCallback === 'function') {
+            successCallback();
+        }
+    });
+
+    // Add event listener to close the dialog and overlay when clicking outside the dialog
+    overlay.addEventListener('click', closeDialog);
+
+    // Function to close the dialog and overlay
+    function closeDialog() {
+        overlay.style.display = 'none';
+        dialog.style.display = 'none';
+        yesButton.removeEventListener('click', closeDialog);
+    }
+}
+
 let socket = connectToServer(hashCode);
+
+hideObsControlDiv();
+
+document.getElementById("hide-mod-button").addEventListener("click", hideSelectedUserDiv);
+document.getElementById("hide-obs-button").addEventListener("click", hideObsControlDiv);
