@@ -27,7 +27,7 @@ function unlockObsButtons() {
 function lockObsButtons() {
     isObsUnlocked = false;
     clearInterval(obsLockCountdownTimer);
-    padlockObsButton.innerHTML = '<img src="img/padlock.png" alt="Icon 1" style="max-width: 100%; max-height: 100%;">';
+    padlockObsButton.innerHTML = '<img src="../img/padlock.png" alt="Icon 1" style="max-width: 100%; max-height: 100%;">';
     streamStartSwitch.disabled = true;
     sceneSwitch.disabled = true;
     hideObsButton.disabled = false;
