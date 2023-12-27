@@ -27,7 +27,7 @@ function unlockModButtons() {
 function lockModButtons() {
     isUnlocked = false;
     clearInterval(countdownTimer);
-    padlockButton.innerHTML = '<img src="img/padlock.png" alt="Icon 1" style="max-width: 100%; max-height: 100%;">';
+    padlockButton.innerHTML = '<img src="../img/padlock.png" alt="Icon 1" style="max-width: 100%; max-height: 100%;">';
     timeoutButton.disabled = true;
     banButton.disabled = true;
     hideModButton.disabled = false;
